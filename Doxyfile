@@ -33,7 +33,7 @@ PROJECT_BRIEF          = "API for Kalray mppadl Library"
 # spaces.
 # Note: If this tag is empty the current directory is searched.
 
-INPUT                  = include .
+INPUT                  = include mppadl.dox
 
 
 # The OUTPUT_DIRECTORY tag is used to specify the (relative or absolute) path
