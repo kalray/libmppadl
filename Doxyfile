@@ -44,3 +44,5 @@ INPUT                  = include mppadl.dox
 #
 #OUTPUT_DIRECTORY       = $(O)/doc/
 OUTPUT_DIRECTORY        = doc/
+
+WARN_LOGFILE            = doxygen_errors.log
