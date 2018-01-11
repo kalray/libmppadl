@@ -29,6 +29,9 @@ char *mppa_dl_error(void)
 	case E_ELF_PHDR:
 		err_msg = "libelf failure: elf_getphdr()";
 		break;
+	case E_MEM_ALIGN:
+		err_msg = "memalign() failed";
+		break;
 	default:
 		err_msg = "unknown error";
 	}

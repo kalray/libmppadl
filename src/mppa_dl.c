@@ -25,7 +25,19 @@ void *mppa_dl_load(const char *image, size_t size)
 	}
 
 	/* allocate memory to load needed ELF segments */
-	mppa_dl_load_segments_memsz(hdl);
+	hdl->mem_addr = memalign (mppa_dl_load_segments_align(hdl),
+				  mppa_dl_load_segments_memsz(hdl));
+	if (hdl->mem_addr == NULL) {
+		mppa_dl_errno(E_MEM_ALIGN);
+		return (void*)hdl;
+	}
 
 	return (void*)hdl;
+}
+
+int mppa_dl_unload(void *handle)
+{
+	free(((mppa_dl_handle_t*)handle)->mem_addr);
+	free(handle);
+	return 0;
 }

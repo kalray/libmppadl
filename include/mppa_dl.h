@@ -51,7 +51,8 @@ void *mppa_dl_sym(void *handle, const char* symbol);
  * The mppa_dl_unload() unload the dynamic library handled by \a handle.
  *
  * \param handle The \a handle of the dynamic library to unload.
- * \return Zero on success, and nonzero on error (see mppa_dl_error())
+ * \return Zero on success, and nonzero on error. Actually, this function cannot
+ * fail
  */
 int mppa_dl_unload(void *handle);
 
@@ -63,7 +64,7 @@ int mppa_dl_unload(void *handle);
  * since its last call.
  *
  * \return A string only if an error has occurred since initialization or the
- * last call of mppa_dl_error(), and NULL otherwise.
+ * last call of mppa_dl_error(), and NULL otherwise
  */
 char *mppa_dl_error(void);
 
