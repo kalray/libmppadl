@@ -26,6 +26,12 @@ void *mppa_dl_load(const char *image, size_t size)
 		return (void*)hdl;
 	}
 
+	/* retrieve the number of EFL program headers */
+	if (elf_getphdrnum(hdl->elf_desc, &hdl->phdrnum) != 0) {
+		mppa_dl_errno(E_ELF_PHDRNUM);
+		return (void*)hdl;
+	}
+
 	/* allocate memory to load needed ELF segments */
 	hdl->mem_addr = memalign (mppa_dl_load_segments_align(hdl),
 				  mppa_dl_load_segments_memsz(hdl));
