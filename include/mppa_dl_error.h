@@ -9,14 +9,20 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <gelf.h>
 
-/**
- * Exit on failure.
- * Print the location of a failure on stderr, then exit.
- *
- * \param file The file where the failure occured.
- * \param line The line number near the failure location.
- */
-void mppa_dl_failure(char * file, int line);
+enum MPPA_DL_ERRNO {
+	E_NONE,
+	E_ELF_OLD,
+	E_ELF_MEM,
+	E_ELF_PHDRNUM,
+	E_ELF_PHDR
+};
+
+int mppa_dl_errno_status;
+
+void mppa_dl_errno(int errno);
+
+extern char *mppa_dl_error(void);
 
 #endif
