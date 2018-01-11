@@ -45,7 +45,15 @@ void *mppa_dl_load(const char *image, size_t size)
 
 int mppa_dl_unload(void *handle)
 {
+	int ret = 0;
+
+	if (elf_end(((mppa_dl_handle_t*)handle)->elf_desc) != 0) {
+		mppa_dl_errno(E_ELF_END);
+		ret = -1;
+	}
+
 	free(((mppa_dl_handle_t*)handle)->mem_addr);
 	free(handle);
-	return 0;
+
+	return ret;
 }
