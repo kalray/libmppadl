@@ -9,6 +9,7 @@
 
 typedef struct {
 	Elf *elf_desc;
+	void *mem_addr;
 } mppa_dl_handle_t;
 
 #endif
