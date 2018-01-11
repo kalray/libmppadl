@@ -10,6 +10,8 @@ void *mppa_dl_load(const char *image, size_t size)
 {
 	mppa_dl_errno(E_NONE);
 	mppa_dl_handle_t *hdl = NULL;
+	GElf_Phdr phdr;
+	int i;
 
 	/* querying the current operating version of the ELF library */
 	if (elf_version(EV_CURRENT) == EV_NONE) {
@@ -38,6 +40,23 @@ void *mppa_dl_load(const char *image, size_t size)
 	if (hdl->mem_addr == NULL) {
 		mppa_dl_errno(E_MEM_ALIGN);
 		return (void*)hdl;
+	}
+
+	/* iterate program headers to load PT_LOAD segments */
+	for (i = 0; i < (int)hdl->phdrnum; i++) {
+		if (gelf_getphdr( hdl->elf_desc, (int)i, &phdr ) == NULL) {
+			mppa_dl_errno(E_ELF_PHDR);
+			return (void*)hdl;
+		}
+
+		switch (phdr.p_type) {
+		case PT_LOAD: /* load segment to memory */
+			memcpy(hdl->mem_addr + phdr.p_vaddr,
+			       image + phdr.p_offset, phdr.p_memsz);
+			break;
+		default: /* do not load other segments */
+			break;
+		}
 	}
 
 	return (void*)hdl;
