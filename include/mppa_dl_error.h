@@ -2,10 +2,6 @@
  * Copyright (C) 2018 Kalray SA.
  *
  * All rights reserved.
- *
- *
- * \file mppa_dl_error.h
- * \brief Failure management.
  */
 
 #ifndef MPPA_DL_ERROR_H
