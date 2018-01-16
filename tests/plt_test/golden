@@ -1,0 +1,4 @@
+Found mppa_dl_main in plt_test module at VARIABLE_VALUE_REMOVED_FROM_TEST_RESULT
+Module load address is VARIABLE_VALUE_REMOVED_FROM_TEST_RESULT
+Returned status: 0
+This printf execution uses a PLT within a dynamic module

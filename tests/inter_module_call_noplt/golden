@@ -1,0 +1,4 @@
+Found mppa_dl_main in inter_module_call_noplt module at VARIABLE_VALUE_REMOVED_FROM_TEST_RESULT
+Module load address is VARIABLE_VALUE_REMOVED_FROM_TEST_RESULT
+Returned status: 0
+Setting pointer from caller to callee: VARIABLE_VALUE_REMOVED_FROM_TEST_RESULT

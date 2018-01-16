@@ -1,0 +1,7 @@
+End, returning from mppa_dl_main
+Found mppa_dl_main at VARIABLE_VALUE_REMOVED_FROM_TEST_RESULT
+Hello World from a submodule!
+Jumping ! 
+Module load address is VARIABLE_VALUE_REMOVED_FROM_TEST_RESULT
+Returned status: 0
+Setting printf_ptr to &printf within loaded module

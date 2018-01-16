@@ -1,0 +1,7 @@
+Found mppa_dl_main in moduleA at VARIABLE_VALUE_REMOVED_FROM_TEST_RESULT
+Module load address is VARIABLE_VALUE_REMOVED_FROM_TEST_RESULT
+Ret value : deac5caf
+[module A] Found module_B_main in moduleB at VARIABLE_VALUE_REMOVED_FROM_TEST_RESULT
+[module A] Jumping in module B (this printf has been dynamically resolved)
+[module A] Module load address is VARIABLE_VALUE_REMOVED_FROM_TEST_RESULT
+[module B] I'm module B, I'm returning deadbeef (this printf has been dynamically resolved)

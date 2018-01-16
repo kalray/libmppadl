@@ -1,0 +1,77 @@
+##  -*- mode: makefile -*-
+
+DESTDIR?=$(CURDIR)
+O=$(DESTDIR)/output
+
+
+board := $(BOARD)
+arch := $(ARCH)
+
+BIN2H:=$(abspath ../bin2h_v2.py)
+GENERATED:=$(abspath $(DESTDIR)/generated)
+
+K1_JTAG_RUNNER:=k1-jtag-runner
+K1_REMOTE_RUNNER:= k1-remote-runner --nohost_exec
+
+ifeq ($(CLUSTER_TYPE), ioddr)
+K1_JTAG_RUNNER += --exec-file=IODDR0:
+else
+K1_JTAG_RUNNER += --exec-file=Cluster0:
+endif
+
+K1_CLUSTER:=k1-cluster  --no-trap --mcluster=$(CLUSTER_TYPE)
+
+ifeq ($(ARCH),k1b)
+ K1_CLUSTER += --march=bostan
+endif
+
+MAIN_LDFLAGS := -L $(MPPADL_LIB_PATH) $(SPEC_LDFLAGS) $(if $(findstring hypervisor,$(SPEC_LDFLAGS)),-lvbsp,) $(if $(findstring hypervisor,$(SPEC_LDFLAGS)),$(if $(findstring nodeos,$(SPEC_LDFLAGS)),,$(if $(findstring rtems,$(SPEC_LDFLAGS)),,-lutask)),) -Wl,-E -Wl,--dynamic-list-data -lmppa_dl_s -lmppa_dl -lelf
+MAIN_CFLAGS := $(SPEC_CFLAGS) -g
+
+
+ifeq ($(MPPADL_LIB_PATH),)
+$(error "Missing MPPADL_LIB_PATH")
+endif
+
+MPPADL_INCLUDE_PATH ?= $(abspath $(CURDIR)/../../libmppa_dl/)
+
+k1-cflags := -I $(MPPADL_INCLUDE_PATH) -Wall -Werror $(SPEC_CFLAGS)
+k1-lflags := $(SPEC_LDFLAGS) 
+
+## io-dyn-lflags := -shared -Wl,-Bsymbolic -nostdlib -Wl,--hash-style=sysv 
+## io-dyn-cflags := -fPIC -fno-builtin $(k1-lflags)
+
+## cluster-dyn-lflags := $(io-dyn-lflags)
+## cluster-dyn-cflags := $(io-dyn-cflags)
+
+default : all
+
+clean : clean-generated
+
+clean-generated :
+	rm -rf $(GENERATED)
+
+define mdo_rules
+$(GENERATED)/$(1)_hex.c : $(BIN_DIR)/$(1)_mdo
+	mkdir -p $(GENERATED)
+	$(BIN2H) $$< $$(notdir $$<) > $$@
+endef
+
+define test_rule
+# only works on developer or explorer
+
+test: $$(BIN_DIR)/main
+
+ifneq (,$$(filter $(EXECUTION_PLATFORM)-$(BOARD),hw-developer hw-explorer))
+	../run_test.sh "$(GENERATED)/test.log" "$(GENERATED)" golden "$$<" $(K1_JTAG_RUNNER)$$<
+else ifeq ($(EXECUTION_PLATFORM)-$(BOARD),hw-emb01)
+	../run_test.sh "$(GENERATED)/test.log" "$(GENERATED)" golden "$$<" $(K1_REMOTE_RUNNER) --multibinary=$$< -- $(K1_JTAG_RUNNER)$$<
+else ifneq (,$$(filter $(EXECUTION_PLATFORM)-$(BOARD),sim-developer))
+	../run_test.sh "$(GENERATED)/test.log" "$(GENERATED)" golden "$$<" $(K1_CLUSTER) -- $$<
+else
+	$$(info Skipping test for $(EXECUTION_PLATFORM) on board $(BOARD))
+	true
+endif
+
+endef
+
