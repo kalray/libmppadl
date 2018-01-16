@@ -1,0 +1,9 @@
+system-name := $(OS)
+
+ifeq ($(CLUSTER_TYPE),ioddr)
+io-bin := $(cluster-or-io-bin)
+io-dynbin := $(cluster-or-io-dynbin)
+else
+cluster-bin := $(cluster-or-io-bin)
+cluster-dynbin := $(cluster-or-io-dynbin)
+endif
