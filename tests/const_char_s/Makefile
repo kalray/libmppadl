@@ -3,7 +3,8 @@ include ../Makefile.common
 const_char_s_mdo-srcs := const_char_s.mdo.c
 const_char_s_mdo-bin := const_char_s.mdo
 
-main-srcs := main.c $(GENERATED)/const_char_s_hex.c
+main-srcs := main.c 
+main-deps := $(GENERATED)/const_char_s_hex.h
 main-cflags := $(MAIN_CFLAGS)
 main-lflags := $(MAIN_LDFLAGS)
 
