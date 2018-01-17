@@ -60,6 +60,10 @@ define mdo_rules
 $(GENERATED)/$(1)_hex.c : $(BIN_DIR)/$(1)_mdo
 	mkdir -p $(GENERATED)
 	$(BIN2H) $$< $$(notdir $$<) > $$@
+
+$(GENERATED)/$(1)_hex.h : $(BIN_DIR)/$(1)_mdo
+	mkdir -p $(GENERATED)
+	$(BIN2H) $$< $$(notdir $$<) > $$@
 endef
 
 define test_rule
