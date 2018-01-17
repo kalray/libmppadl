@@ -11,6 +11,8 @@
 #include <stdlib.h>
 #include <gelf.h>
 
+int __mppa_dl_loglevel;
+
 enum MPPA_DL_ERRNO {
 	E_NONE,
 	E_ELF_OLD,
