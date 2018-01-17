@@ -4,8 +4,7 @@
 #include <stdlib.h>
 #include <mppa_dl.h>
 
-#include "generated/char_s_hex.c"
-//extern const char char_s_mdo[];
+#include "generated/char_s_hex.h"
 
 int main(int argc, char *argv[])
 {
