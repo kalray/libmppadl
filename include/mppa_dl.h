@@ -69,4 +69,6 @@ int mppa_dl_unload(void *handle);
  */
 char *mppa_dl_error(void);
 
+void *mppa_dl_load_addr(mppa_dl_handle_t *hdl);
+
 #endif

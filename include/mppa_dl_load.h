@@ -7,6 +7,7 @@
 #ifndef MPPA_DL_LOAD_H
 #define MPPA_DL_LOAD_H
 
+#include <string.h>
 #include <gelf.h>
 
 #include "mppa_dl_types.h"
@@ -28,5 +29,8 @@ size_t mppa_dl_load_segments_memsz(mppa_dl_handle_t *hdl);
  * (to be checked with mppa_dl_error().
  */
 size_t mppa_dl_load_segments_align(mppa_dl_handle_t *hdl);
+
+int mppa_dl_add_relascn(mppa_dl_handle_t *hdl, Elf_Scn *scn);
+int mppa_dl_apply_reloc(mppa_dl_handle_t *hdl);
 
 #endif
