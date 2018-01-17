@@ -15,7 +15,7 @@ char *mppa_dl_error(void)
 
 	switch (mppa_dl_errno_status) {
 	case E_NONE:
-		err_msg = "no error";
+		err_msg = NULL;
 		break;
 	case E_ELF_OLD:
 		err_msg = "libelf too old";
@@ -29,11 +29,20 @@ char *mppa_dl_error(void)
 	case E_ELF_PHDR:
 		err_msg = "libelf failure: elf_getphdr()";
 		break;
+	case E_ELF_SHDR:
+		err_msg = "libelf failure: elf_getshdr()";
+		break;
 	case E_ELF_END:
 		err_msg = "libelf failure: elf_end() doesn't return 0";
 		break;
+	case E_ELF_SYM:
+		err_msg = "libelf failure: gelf_getsym()";
+		break;
 	case E_MEM_ALIGN:
 		err_msg = "memalign() failed";
+		break;
+	case E_UNKN_RELOC:
+		err_msg = "relocation not supported";
 		break;
 	default:
 		err_msg = "unknown error";

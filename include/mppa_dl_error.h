@@ -19,8 +19,11 @@ enum MPPA_DL_ERRNO {
 	E_ELF_MEM,
 	E_ELF_PHDRNUM,
 	E_ELF_PHDR,
+	E_ELF_SHDR,
 	E_ELF_END,
-	E_MEM_ALIGN
+	E_ELF_SYM,
+	E_MEM_ALIGN,
+	E_UNKN_RELOC
 };
 
 int mppa_dl_errno_status;
