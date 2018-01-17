@@ -15,17 +15,14 @@ typedef struct mppa_dl_shdr {
 } mppa_dl_shdr_t;
 
 typedef struct {
-	Elf *elf_desc; /* ELF descriptor */
-	size_t phdrnum; /* Number of segments in ELF memory image */
-	void *mem_addr; /* Starting address of the loaded ELF image */
+	Elf     *hdl_elf;     /* ELF descriptor */
+	size_t   hdl_phdrnum; /* Number of segments in ELF memory image */
+	void    *hdl_addr;    /* Starting address of the loaded ELF image */
+	size_t   hdl_strtab;  /* strtab offset */
+	/*size_t hashoff;*/
+	Elf_Scn *hdl_dynsym;  /* Dynamic linking symbols section */
 
-	size_t strtaboff;
-
-	mppa_dl_shdr_t *s_reloc; /* List of relocation sections */
-	Elf_Scn *s_symtab; /* Symbol table section */
-	Elf_Scn *s_strtab;
-	Elf_Scn *s_dynsym; /* Dynamic linking symbols section */
-
+	mppa_dl_shdr_t *hdl_reloc_l; /* List of relocation sections */
 } mppa_dl_handle_t;
 
 #endif

@@ -15,6 +15,7 @@
 
 #include "mppa_dl_types.h"
 #include "mppa_dl_load.h"
+#include "mppa_dl_sym.h"
 #include "mppa_dl_error.h"
 
 /**
@@ -66,7 +67,5 @@ int mppa_dl_unload(void *handle);
  * last call of mppa_dl_error(), and NULL otherwise
  */
 char *mppa_dl_error(void);
-
-void *mppa_dl_load_addr(mppa_dl_handle_t *hdl);
 
 #endif

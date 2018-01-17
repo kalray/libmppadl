@@ -4,13 +4,9 @@
 
 #include "mppa_dl.h"
 
-void *mppa_dl_load_addr(mppa_dl_handle_t *hdl)
-{
-	return hdl->mem_addr;
-}
-
 void *mppa_dl_load(const char *image, size_t size)
 {
+	__mppa_dl_loglevel = 0;
 	mppa_dl_errno(E_NONE);
 	mppa_dl_handle_t *hdl = NULL;
 	GElf_Phdr phdr;
@@ -27,36 +23,36 @@ void *mppa_dl_load(const char *image, size_t size)
 	hdl = (mppa_dl_handle_t*)malloc(sizeof(mppa_dl_handle_t));
 
 	/* process the ELF image present in memory */
-	hdl->elf_desc = elf_memory((char*)image, size);
-	if (hdl->elf_desc == NULL) {
+	hdl->hdl_elf = elf_memory((char*)image, size);
+	if (hdl->hdl_elf == NULL) {
 		mppa_dl_errno(E_ELF_MEM);
 		return NULL;
 	}
 
 	/* retrieve the number of EFL program headers */
-	if (elf_getphdrnum(hdl->elf_desc, &hdl->phdrnum) != 0) {
+	if (elf_getphdrnum(hdl->hdl_elf, &hdl->hdl_phdrnum) != 0) {
 		mppa_dl_errno(E_ELF_PHDRNUM);
 		return NULL;
 	}
 
 	/* allocate memory to load needed ELF segments */
-	hdl->mem_addr = memalign (mppa_dl_load_segments_align(hdl),
+	hdl->hdl_addr = memalign (mppa_dl_load_segments_align(hdl),
 				  mppa_dl_load_segments_memsz(hdl));
-	if (hdl->mem_addr == NULL) {
+	if (hdl->hdl_addr == NULL) {
 		mppa_dl_errno(E_MEM_ALIGN);
 		return NULL;
 	}
 
 	/* iterate program headers to load PT_LOAD segments */
-	for (i = 0; i < (int)hdl->phdrnum; i++) {
-		if (gelf_getphdr( hdl->elf_desc, (int)i, &phdr ) == NULL) {
+	for (i = 0; i < (int)hdl->hdl_phdrnum; i++) {
+		if (gelf_getphdr( hdl->hdl_elf, (int)i, &phdr ) == NULL) {
 			mppa_dl_errno(E_ELF_PHDR);
 			return (void*)hdl;
 		}
 
 		switch (phdr.p_type) {
 		case PT_LOAD: /* load segment to memory */
-			memcpy(hdl->mem_addr + phdr.p_vaddr,
+			memcpy(hdl->hdl_addr + phdr.p_vaddr,
 			       image + phdr.p_offset, phdr.p_memsz);
 			break;
 		default: /* do not load other segments */
@@ -64,53 +60,49 @@ void *mppa_dl_load(const char *image, size_t size)
 		}
 	}
 
-	//DEBUG
 	GElf_Shdr shdrstr;
 	size_t ndx;
-	elf_getshdrstrndx(hdl->elf_desc, &ndx);
-	gelf_getshdr(elf_getscn(hdl->elf_desc, ndx), &shdrstr);
-	//GUBED
+	if (__mppa_dl_loglevel == 2) {
+		elf_getshdrstrndx(hdl->hdl_elf, &ndx);
+		gelf_getshdr(elf_getscn(hdl->hdl_elf, ndx), &shdrstr);
+	}
 
 	/* get the relocations and symbol table sections */
-	while ((scn = elf_nextscn(hdl->elf_desc, scn)) != NULL) {
+	while ((scn = elf_nextscn(hdl->hdl_elf, scn)) != NULL) {
 		if (gelf_getshdr(scn, &shdr) == NULL) {
 			mppa_dl_errno(E_ELF_SHDR);
 			return NULL;
 		}
 
-		Elf_Data* data = NULL;
 		GElf_Dyn dyn;
 		int d;
-		//DEBUG
-		printf("---examine section %s\n",
-		       image + shdrstr.sh_offset + shdr.sh_name);
-		//GUBED
+		if (__mppa_dl_loglevel == 2)
+			fprintf(stderr, "---examine section %s\n",
+				image + shdrstr.sh_offset + shdr.sh_name);
 
 		switch (shdr.sh_type) {
 		case SHT_RELA:
 			mppa_dl_add_relascn(hdl, scn);
 			break;
-		case SHT_SYMTAB:
-			hdl->s_symtab = scn;
-			break;
-		case SHT_STRTAB:
-			hdl->s_strtab = scn;
-			break;
 		case SHT_DYNSYM:
-			hdl->s_dynsym = scn;
+			hdl->hdl_dynsym = scn;
 			break;
 		case SHT_DYNAMIC:
 			d = 0;
-			while (gelf_getdyn(elf_getdata(scn, data) ,d, &dyn)
-			       != NULL) { //iterate also sur getdata?
-				//DEBUG
-				printf("--dynamic object tag->%lld\n",
-				       dyn.d_tag);
-				//GUBED
+			while (gelf_getdyn(elf_getdata(scn, NULL) ,d, &dyn)
+			       != NULL) {
+				if (__mppa_dl_loglevel == 2)
+					fprintf(stderr,
+						"--dynamic object tag->%lld\n",
+						dyn.d_tag);
+
 				switch (dyn.d_tag) {
 				case DT_STRTAB:
-					hdl->strtaboff = dyn.d_un.d_ptr;
+					hdl->hdl_strtab = dyn.d_un.d_ptr;
 					break;
+					/*case DT_HASH:
+					  hdl->hashoff = dyn.d_un.d_ptr;
+					  break;*/
 				default:
 					break;
 				}
@@ -128,16 +120,28 @@ void *mppa_dl_load(const char *image, size_t size)
 	return (void*)hdl;
 }
 
+void *mppa_dl_sym(void *handle, const char* symbol)
+{
+	return mppa_dl_sym_lookup((mppa_dl_handle_t*)handle, symbol);
+}
+
 int mppa_dl_unload(void *handle)
 {
 	int ret = 0;
 
-	if (elf_end(((mppa_dl_handle_t*)handle)->elf_desc) != 0) {
+	if (elf_end(((mppa_dl_handle_t*)handle)->hdl_elf) != 0) {
 		mppa_dl_errno(E_ELF_END);
 		ret = -1;
 	}
 
-	free(((mppa_dl_handle_t*)handle)->mem_addr);
+	mppa_dl_shdr_t *tmp, *rlc = ((mppa_dl_handle_t*)handle)->hdl_reloc_l;
+	while ( rlc != NULL) {
+		tmp = rlc->next;
+		free(rlc);
+		rlc = tmp;
+	}
+
+	free(((mppa_dl_handle_t*)handle)->hdl_addr);
 	free(handle);
 
 	return ret;

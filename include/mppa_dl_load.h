@@ -11,6 +11,8 @@
 #include "mppa_dl_types.h"
 #include "mppa_dl_error.h"
 
+void *mppa_dl_load_addr(mppa_dl_handle_t *hdl);
+
 /**
  * Determine memory size required to load segments into memory.
  * Compute the total memory size required by loadable segments (PT_LOAD), in
