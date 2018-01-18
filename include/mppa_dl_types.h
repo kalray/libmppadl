@@ -25,4 +25,10 @@ typedef struct {
 	mppa_dl_shdr_t *hdl_reloc_l; /* List of relocation sections */
 } mppa_dl_handle_t;
 
+typedef struct mppa_dl_handle_list {
+	struct mppa_dl_handle_list *parent;
+	struct mppa_dl_handle_list *child;
+	mppa_dl_handle_t *handle;
+} mppa_dl_handle_list_t;
+
 #endif

@@ -4,6 +4,8 @@
 
 #include "mppa_dl_error.h"
 
+int __mppa_dl_loglevel = 0;
+
 void mppa_dl_errno(int errno)
 {
 	mppa_dl_errno_status = errno;
@@ -43,6 +45,9 @@ char *mppa_dl_error(void)
 		break;
 	case E_UNKN_RELOC:
 		err_msg = "relocation not supported";
+		break;
+	case E_HDL_LIST:
+		err_msg = "unload failure: cannot find handle in list";
 		break;
 	default:
 		err_msg = "unknown error";

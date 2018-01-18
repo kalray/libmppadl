@@ -4,10 +4,10 @@
 
 #include "mppa_dl.h"
 
+mppa_dl_handle_list_t *hdl_l_head = NULL;
+
 void *mppa_dl_load(const char *image, size_t size)
 {
-	__mppa_dl_loglevel = 0;
-
 	if (__mppa_dl_loglevel > 0)
 		fprintf(stderr, "--> mppa_dl_load\n");
 
@@ -31,6 +31,21 @@ void *mppa_dl_load(const char *image, size_t size)
 	hdl->hdl_strtab = 0;
 	hdl->hdl_dynsym = NULL;
 	hdl->hdl_reloc_l = NULL;
+
+	if (hdl_l_head == NULL) {
+		hdl_l_head = (mppa_dl_handle_list_t*)
+			malloc(sizeof(mppa_dl_handle_list_t));
+		hdl_l_head->parent = NULL;
+		hdl_l_head->child = NULL;
+		hdl_l_head->handle = hdl;
+	} else {
+		hdl_l_head->parent = (mppa_dl_handle_list_t*)
+			malloc(sizeof(mppa_dl_handle_list_t));
+		hdl_l_head->parent->parent = NULL;
+		hdl_l_head->parent->child = hdl_l_head;
+		hdl_l_head->parent->handle = hdl;
+		hdl_l_head = hdl_l_head->parent;
+	}
 
 	/* process the ELF image present in memory */
 	hdl->hdl_elf = elf_memory((char*)image, size);
@@ -161,6 +176,34 @@ int mppa_dl_unload(void *handle)
 
 	free(((mppa_dl_handle_t*)handle)->hdl_addr);
 	free(handle);
+
+	/* remove the handle from the list */
+	mppa_dl_handle_list_t *tit, *it = hdl_l_head;
+	while (it->handle != handle) {
+		it = it->child;
+	}
+	if (it == NULL) {
+		mppa_dl_errno(E_HDL_LIST);
+		ret = -1;
+	} else {
+		if (it->parent == NULL && it->child == NULL) {
+			/* empty the list */
+			hdl_l_head = NULL;
+		} else if (it->parent != NULL && it->child == NULL) {
+			/* remove the tail */
+			it->parent->child = NULL;
+		} else if (it->parent == NULL && it->child != NULL) {
+			/* remove the head */
+			it->child->parent = NULL;
+			hdl_l_head = it->child;
+		} else {
+			/* remove an element */
+			tit = it->child->parent;
+			it->child->parent = it->parent->child;
+			it->parent->child = tit;
+		}
+		free(it);
+	}
 
 	if (__mppa_dl_loglevel > 0)
 		fprintf(stderr, "<-- mppa_dl_unload\n");
