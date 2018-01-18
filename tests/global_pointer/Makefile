@@ -3,7 +3,8 @@ include ../Makefile.common
 global_pointer_mdo-srcs := global_pointer.mdo.c
 global_pointer_mdo-bin := global_pointer.mdo
 
-main-srcs := main.c $(GENERATED)/global_pointer_hex.c
+main-srcs := main.c
+main-deps := $(GENERATED)/global_pointer_hex.h
 main-cflags := $(MAIN_CFLAGS)
 main-lflags := $(MAIN_LDFLAGS)
 
