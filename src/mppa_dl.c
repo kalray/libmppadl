@@ -7,6 +7,10 @@
 void *mppa_dl_load(const char *image, size_t size)
 {
 	__mppa_dl_loglevel = 0;
+
+	if (__mppa_dl_loglevel > 0)
+		fprintf(stderr, "--> mppa_dl_load\n");
+
 	mppa_dl_errno(E_NONE);
 	mppa_dl_handle_t *hdl = NULL;
 	GElf_Phdr phdr;
@@ -21,6 +25,12 @@ void *mppa_dl_load(const char *image, size_t size)
 	}
 
 	hdl = (mppa_dl_handle_t*)malloc(sizeof(mppa_dl_handle_t));
+	hdl->hdl_elf = NULL;
+	hdl->hdl_phdrnum = 0;
+	hdl->hdl_addr = NULL;
+	hdl->hdl_strtab = 0;
+	hdl->hdl_dynsym = NULL;
+	hdl->hdl_reloc_l = NULL;
 
 	/* process the ELF image present in memory */
 	hdl->hdl_elf = elf_memory((char*)image, size);
@@ -82,6 +92,9 @@ void *mppa_dl_load(const char *image, size_t size)
 
 		switch (shdr.sh_type) {
 		case SHT_RELA:
+			if (__mppa_dl_loglevel == 2)
+				fprintf(stderr, "---add a relation section in "
+					"the handle's list\n");
 			mppa_dl_add_relascn(hdl, scn);
 			break;
 		case SHT_DYNSYM:
@@ -117,6 +130,8 @@ void *mppa_dl_load(const char *image, size_t size)
 	if (mppa_dl_apply_reloc(hdl) == -1)
 		return NULL;
 
+	if (__mppa_dl_loglevel > 0)
+		fprintf(stderr, "<-- mppa_dl_load\n");
 	return (void*)hdl;
 }
 
@@ -127,6 +142,9 @@ void *mppa_dl_sym(void *handle, const char* symbol)
 
 int mppa_dl_unload(void *handle)
 {
+	if (__mppa_dl_loglevel > 0)
+		fprintf(stderr, "--> mppa_dl_unload\n");
+
 	int ret = 0;
 
 	if (elf_end(((mppa_dl_handle_t*)handle)->hdl_elf) != 0) {
@@ -143,6 +161,9 @@ int mppa_dl_unload(void *handle)
 
 	free(((mppa_dl_handle_t*)handle)->hdl_addr);
 	free(handle);
+
+	if (__mppa_dl_loglevel > 0)
+		fprintf(stderr, "<-- mppa_dl_unload\n");
 
 	return ret;
 }
