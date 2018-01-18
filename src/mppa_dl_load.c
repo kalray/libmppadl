@@ -77,6 +77,9 @@ int mppa_dl_add_relascn(mppa_dl_handle_t *hdl, Elf_Scn *scn)
 
 int mppa_dl_apply_reloc(mppa_dl_handle_t *hdl)
 {
+	if (__mppa_dl_loglevel > 0)
+		fprintf(stderr, "--> mppa_dl_apply_reloc\n");
+
 	int i;
 	GElf_Rela rela;
 	GElf_Sym sym;
@@ -84,6 +87,9 @@ int mppa_dl_apply_reloc(mppa_dl_handle_t *hdl)
 
 	mppa_dl_shdr_t *relocs = hdl->hdl_reloc_l;
 	while (relocs != NULL) {
+		if (__mppa_dl_loglevel == 2)
+			fprintf(stderr, "--relocation section:\n");
+
 		for (i = 0;
 		     gelf_getrela(elf_getdata(relocs->scn, NULL), i, &rela);
 		     i++) {
@@ -133,6 +139,9 @@ int mppa_dl_apply_reloc(mppa_dl_handle_t *hdl)
 		}
 		relocs = relocs->next;
 	}
+
+	if (__mppa_dl_loglevel > 0)
+		fprintf(stderr, "<-- mppa_dl_apply_reloc\n");
 
 	return 0;
 }

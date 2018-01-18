@@ -3,7 +3,8 @@ include ../Makefile.common
 create_destroy_mdo-srcs := create_destroy.mdo.c
 create_destroy_mdo-bin := create_destroy.mdo
 
-main-srcs := main.c $(GENERATED)/create_destroy_hex.c
+main-srcs := main.c
+main-deps := $(GENERATED)/create_destroy_hex.h
 main-cflags := $(MAIN_CFLAGS)
 main-lflags := $(MAIN_LDFLAGS)
 
