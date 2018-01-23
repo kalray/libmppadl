@@ -3,7 +3,8 @@ include ../Makefile.common
 plt_test_mdo-srcs := plt_test.mdo.c
 plt_test_mdo-bin := plt_test.mdo
 
-main-srcs := main.c $(GENERATED)/plt_test_hex.c
+main-srcs := main.c
+main-deps := $(GENERATED)/plt_test_hex.h
 main-cflags := $(MAIN_CFLAGS)
 main-lflags := $(MAIN_LDFLAGS)
 
