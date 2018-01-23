@@ -129,6 +129,7 @@ int mppa_dl_apply_rela(mppa_dl_handle_t *hdl, ElfK1_Rela rel)
 		memcpy((void *)hdl->addr + rel.r_offset, &tmp,
 			sizeof(ElfK1_Word));
 		break;
+	case R_K1_GLOB_DAT:
 	case R_K1_JMP_SLOT:
 		tmp = (ElfK1_Word)mppa_dl_sym_lookup(hdl,
 			&hdl->strtab[sym.st_name]);
