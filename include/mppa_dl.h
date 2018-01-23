@@ -10,13 +10,14 @@
 #define MPPA_DL_H
 
 #include <string.h>
-#include <malloc.h>
 #include <libelf.h>
 
 #include "mppa_dl_types.h"
+#include "mppa_dl_error.h"
+#include "mppa_dl_mem.h"
 #include "mppa_dl_load.h"
 #include "mppa_dl_sym.h"
-#include "mppa_dl_error.h"
+
 
 /**
  * \brief Load a dynamic library.

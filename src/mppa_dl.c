@@ -32,7 +32,8 @@ void *mppa_dl_load(const char *image)
 #if VERBOSE > 1
 		fprintf(stderr, ">> main program have a .dynamic section\n");
 #endif
-		head = (mppa_dl_handle_t *)malloc(sizeof(mppa_dl_handle_t));
+		head = (mppa_dl_handle_t *)
+			mppa_dl_malloc(sizeof(mppa_dl_handle_t));
 		if (mppa_dl_init_handle(head, _DYNAMIC, NULL, NULL) != 0) {
 			mppa_dl_errno(E_INIT_HDL);
 			return NULL;
@@ -55,7 +56,7 @@ void *mppa_dl_load(const char *image)
 		}
 	}
 
-	addr = memalign(malign, memsz);
+	addr = mppa_dl_memalign(malign, memsz);
 
 #if VERBOSE > 1
 	fprintf(stderr, ">> allocate %d bytes of memory at 0x%lx, "
@@ -91,7 +92,7 @@ void *mppa_dl_load(const char *image)
 		switch (shdr[i].sh_type) {
 		case SHT_DYNAMIC:
 			hdl = (mppa_dl_handle_t *)
-				malloc(sizeof(mppa_dl_handle_t));
+				mppa_dl_malloc(sizeof(mppa_dl_handle_t));
 			if (mppa_dl_init_handle(
 				    hdl,
 				    (ElfK1_Dyn *)((ElfK1_Addr)shdr[i].sh_addr),
@@ -169,7 +170,7 @@ int mppa_dl_unload(void *handle)
 	int ret = 0;
 	mppa_dl_handle_t *hdl = (mppa_dl_handle_t*)handle;
 
-	free(hdl->addr); /* free allocated ELF image memory */
+	mppa_dl_free(hdl->addr); /* free allocated ELF image memory */
 
 	/* remove the handle from the list */
 
@@ -191,13 +192,13 @@ int mppa_dl_unload(void *handle)
 		fprintf(stderr, ">> unload also handle for main program\n");
 #endif
 		if (head->parent == NULL) {
-			free(head->addr);
-			free(head);
+			mppa_dl_free(head->addr);
+			mppa_dl_free(head);
 			head = NULL;
 		}
 	}
 
-	free(handle);
+	mppa_dl_free(handle);
 
 #if VERBOSE > 0
 	fprintf(stderr, "< mppa_dl_unload()\n");
