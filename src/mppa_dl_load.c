@@ -15,7 +15,7 @@ void *mppa_dl_load_addr(mppa_dl_handle_t *hdl)
 }
 
 
-int mppa_dl_init_handle(mppa_dl_handle_t *hdl, Elf32_Dyn *dyn,
+int mppa_dl_init_handle(mppa_dl_handle_t *hdl, ElfK1_Dyn *dyn,
 			void *off, mppa_dl_handle_t *parent)
 {
 #if VERBOSE > 0

@@ -17,7 +17,7 @@ void *mppa_dl_load_addr(mppa_dl_handle_t *hdl);
 
 int mppa_dl_apply_rela(mppa_dl_handle_t *hdl, ElfK1_Rela rel);
 
-int mppa_dl_init_handle(mppa_dl_handle_t *h, Elf32_Dyn *dyn, 
+int mppa_dl_init_handle(mppa_dl_handle_t *h, ElfK1_Dyn *dyn, 
 			void *off, mppa_dl_handle_t *parent);
 
 #endif
