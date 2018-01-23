@@ -3,7 +3,8 @@ include ../Makefile.common
 sym_reloc_mdo-srcs := sym_reloc.mdo.c
 sym_reloc_mdo-bin := sym_reloc.mdo
 
-main-srcs := main.c $(GENERATED)/sym_reloc_hex.c
+main-srcs := main.c
+main-deps := $(GENERATED)/sym_reloc_hex.h
 main-cflags := $(MAIN_CFLAGS)
 main-lflags := $(MAIN_LDFLAGS)
 
