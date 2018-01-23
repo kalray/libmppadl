@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
 	void *handle;
 	int status = 0;
 
-	handle = mppa_dl_load(empty_module_mdo, sizeof(empty_module_mdo));
+	handle = mppa_dl_load(empty_module_mdo);
 	if (handle == NULL) {
 		fprintf(stderr, "mppa_dl_load failed: %s\n", mppa_dl_error());
 		status = -1;
