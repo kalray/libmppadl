@@ -13,6 +13,13 @@ void mppa_dl_errno(int errno)
 	mppa_dl_errno_status = errno;
 }
 
+
+int mppa_dl_errno_get_status()
+{
+	return mppa_dl_errno_status;
+}
+
+
 char *mppa_dl_error(void)
 {
 	char *err_msg;
