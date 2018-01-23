@@ -61,7 +61,7 @@ void *mppa_dl_load(const char *image)
 #if VERBOSE > 1
 	fprintf(stderr, ">> allocate %d bytes of memory at 0x%lx, "
 		"with alignement: %d\n",
-		memsz, (Elf32_Addr)addr, malign);
+		memsz, (ElfK1_Addr)addr, malign);
 #endif
 
 	if (addr == NULL) {
