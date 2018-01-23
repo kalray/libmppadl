@@ -3,7 +3,8 @@ include ../Makefile.common
 simple_printf_reloc_mdo-srcs := simple_printf_reloc.mdo.c
 simple_printf_reloc_mdo-bin := simple_printf_reloc.mdo
 
-main-srcs := main.c $(GENERATED)/simple_printf_reloc_hex.c
+main-srcs := main.c
+main-deps := $(GENERATED)/simple_printf_reloc_hex.h
 main-cflags := $(MAIN_CFLAGS)
 main-lflags := $(MAIN_LDFLAGS)
 
