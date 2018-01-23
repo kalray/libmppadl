@@ -11,7 +11,7 @@
 
 #include <string.h>
 #include <malloc.h>
-#include <gelf.h>
+#include <libelf.h>
 
 #include "mppa_dl_types.h"
 #include "mppa_dl_load.h"
@@ -25,11 +25,10 @@
  * \a image and returns an opaque "handle" for the dynamic library.
  *
  * \param image Pointer to the start of the memory image to load.
- * \param size The size of the image, in bytes.
  * \return The \a handle of the loaded image on success, or NULL in
  * case of error (see mppa_dl_error())
  */
-void *mppa_dl_load(const char *image, size_t size);
+void *mppa_dl_load(const char *image);
 
 /**
  * \brief Get the memory address of a symbol.

@@ -4,209 +4,204 @@
 
 #include "mppa_dl.h"
 
-mppa_dl_handle_list_t *hdl_l_head = NULL;
+mppa_dl_handle_t *head = NULL;
 
-void *mppa_dl_load(const char *image, size_t size)
+
+void *mppa_dl_load(const char *image)
 {
-	if (__mppa_dl_loglevel > 0)
-		fprintf(stderr, "--> mppa_dl_load\n");
+#if VERBOSE > 0
+	fprintf(stderr, "> mppa_dl_load()\n");
+#endif
 
-	mppa_dl_errno(E_NONE);
+	size_t i;
+	size_t memsz = 0, malign = 0;
+
 	mppa_dl_handle_t *hdl = NULL;
-	GElf_Phdr phdr;
-	GElf_Shdr shdr;
-	Elf_Scn *scn = NULL;
-	int i;
+	void *addr = NULL;
 
-	/* querying the current operating version of the ELF library */
-	if (elf_version(EV_CURRENT) == EV_NONE) {
-		mppa_dl_errno(E_ELF_OLD);
-		return (void*)hdl;
+	/* ELF header */
+	ElfK1_Ehdr *ehdr = (ElfK1_Ehdr *)image;
+	/* Section header list */
+	ElfK1_Shdr *shdr = (ElfK1_Shdr *)(image + ehdr->e_shoff);
+	/* Program header list */
+	ElfK1_Phdr *phdr = (ElfK1_Phdr *)(image + ehdr->e_phoff);
+
+	/* handle list is empty and _DYNAMIC symbol has been declared by the
+	   main program: add an handle for it */
+	if (head == NULL && _DYNAMIC != 0) {
+#if VERBOSE > 1
+		fprintf(stderr, ">> main program have a .dynamic section\n");
+#endif
+		head = (mppa_dl_handle_t *)malloc(sizeof(mppa_dl_handle_t));
+		if (mppa_dl_init_handle(head, _DYNAMIC, NULL, NULL) != 0) {
+			mppa_dl_errno(E_INIT_HDL);
+			return NULL;
+		}
 	}
 
-	hdl = (mppa_dl_handle_t*)malloc(sizeof(mppa_dl_handle_t));
-	hdl->hdl_elf = NULL;
-	hdl->hdl_phdrnum = 0;
-	hdl->hdl_addr = NULL;
-	hdl->hdl_strtab = 0;
-	hdl->hdl_dynsym = NULL;
-	hdl->hdl_reloc_l = NULL;
-
-	if (hdl_l_head == NULL) {
-		hdl_l_head = (mppa_dl_handle_list_t*)
-			malloc(sizeof(mppa_dl_handle_list_t));
-		hdl_l_head->parent = NULL;
-		hdl_l_head->child = NULL;
-		hdl_l_head->handle = hdl;
-	} else {
-		hdl_l_head->parent = (mppa_dl_handle_list_t*)
-			malloc(sizeof(mppa_dl_handle_list_t));
-		hdl_l_head->parent->parent = NULL;
-		hdl_l_head->parent->child = hdl_l_head;
-		hdl_l_head->parent->handle = hdl;
-		hdl_l_head = hdl_l_head->parent;
-	}
-
-	/* process the ELF image present in memory */
-	hdl->hdl_elf = elf_memory((char*)image, size);
-	if (hdl->hdl_elf == NULL) {
-		mppa_dl_errno(E_ELF_MEM);
-		return NULL;
-	}
-
-	/* retrieve the number of EFL program headers */
-	if (elf_getphdrnum(hdl->hdl_elf, &hdl->hdl_phdrnum) != 0) {
-		mppa_dl_errno(E_ELF_PHDRNUM);
-		return NULL;
-	}
-
+#if VERBOSE > 1
+	fprintf(stderr, ">> ELF image contains %u program headers, "
+		"starting at offset 0x%lx\n", ehdr->e_phnum, ehdr->e_phoff);
+	fprintf(stderr, ">> ELF image contains %u section headers, "
+		"starting at offset 0x%lx\n", ehdr->e_shnum, ehdr->e_shoff);
+#endif
 	/* allocate memory to load needed ELF segments */
-	hdl->hdl_addr = memalign (mppa_dl_load_segments_align(hdl),
-				  mppa_dl_load_segments_memsz(hdl));
-	if (hdl->hdl_addr == NULL) {
+
+	/* determine memory size and alignement constraints */
+	for (i = 0; i < ehdr->e_phnum; i++) {
+		if (phdr[i].p_type == PT_LOAD) {
+			memsz = MAX(memsz, phdr[i].p_vaddr + phdr[i].p_memsz);
+			malign = MAX(malign, phdr[i].p_align);
+		}
+	}
+
+	addr = memalign(malign, memsz);
+
+#if VERBOSE > 1
+	fprintf(stderr, ">> allocate %d bytes of memory at 0x%lx, "
+		"with alignement: %d\n",
+		memsz, (Elf32_Addr)addr, malign);
+#endif
+
+	if (addr == NULL) {
 		mppa_dl_errno(E_MEM_ALIGN);
 		return NULL;
 	}
 
 	/* iterate program headers to load PT_LOAD segments */
-	for (i = 0; i < (int)hdl->hdl_phdrnum; i++) {
-		if (gelf_getphdr( hdl->hdl_elf, (int)i, &phdr ) == NULL) {
-			mppa_dl_errno(E_ELF_PHDR);
-			return (void*)hdl;
-		}
-
-		switch (phdr.p_type) {
+	for (i = 0; i < ehdr->e_phnum; i++) {
+		switch (phdr[i].p_type) {
 		case PT_LOAD: /* load segment to memory */
-			memcpy(hdl->hdl_addr + phdr.p_vaddr,
-			       image + phdr.p_offset, phdr.p_memsz);
+			memcpy(addr + phdr[i].p_vaddr,
+			       image + phdr[i].p_offset, phdr[i].p_memsz);
+#if VERBOSE > 1
+			fprintf(stderr,
+				">> load segment %d, %lu bytes at 0x%lx\n",
+				i, phdr[i].p_memsz,
+				(ElfK1_Addr)addr + phdr[i].p_vaddr);
+#endif
 			break;
 		default: /* do not load other segments */
 			break;
 		}
 	}
 
-	GElf_Shdr shdrstr;
-	size_t ndx;
-	if (__mppa_dl_loglevel == 2) {
-		elf_getshdrstrndx(hdl->hdl_elf, &ndx);
-		gelf_getshdr(elf_getscn(hdl->hdl_elf, ndx), &shdrstr);
-	}
-
-	/* get the relocations and symbol table sections */
-	while ((scn = elf_nextscn(hdl->hdl_elf, scn)) != NULL) {
-		if (gelf_getshdr(scn, &shdr) == NULL) {
-			mppa_dl_errno(E_ELF_SHDR);
-			return NULL;
-		}
-
-		GElf_Dyn dyn;
-		int d;
-		if (__mppa_dl_loglevel == 2)
-			fprintf(stderr, "---examine section %s\n",
-				image + shdrstr.sh_offset + shdr.sh_name);
-
-		switch (shdr.sh_type) {
-		case SHT_RELA:
-			if (__mppa_dl_loglevel == 2)
-				fprintf(stderr, "---add a relation section in "
-					"the handle's list\n");
-			mppa_dl_add_relascn(hdl, scn);
-			break;
-		case SHT_DYNSYM:
-			hdl->hdl_dynsym = scn;
-			break;
+	/* iterate section headers to init handle for loaded image */
+	for (i = 0; i < ehdr->e_shnum; i++) {
+		switch (shdr[i].sh_type) {
 		case SHT_DYNAMIC:
-			d = 0;
-			while (gelf_getdyn(elf_getdata(scn, NULL) ,d, &dyn)
-			       != NULL) {
-				if (__mppa_dl_loglevel == 2)
-					fprintf(stderr,
-						"--dynamic object tag->%lld\n",
-						dyn.d_tag);
-
-				switch (dyn.d_tag) {
-				case DT_STRTAB:
-					hdl->hdl_strtab = dyn.d_un.d_ptr;
-					break;
-					/*case DT_HASH:
-					  hdl->hashoff = dyn.d_un.d_ptr;
-					  break;*/
-				default:
-					break;
-				}
-				d++;
+			hdl = (mppa_dl_handle_t *)
+				malloc(sizeof(mppa_dl_handle_t));
+			if (mppa_dl_init_handle(
+				    hdl,
+				    (ElfK1_Dyn *)((ElfK1_Addr)shdr[i].sh_addr),
+				    addr, head) == 0) {
+				head = hdl;
+			} else {
+				mppa_dl_errno(E_INIT_HDL);
+				return NULL;
 			}
+			i = ehdr->e_shnum;
 			break;
 		default:
 			break;
 		}
 	}
 
-	if (mppa_dl_apply_reloc(hdl) == -1)
-		return NULL;
 
-	if (__mppa_dl_loglevel > 0)
-		fprintf(stderr, "<-- mppa_dl_load\n");
-	return (void*)hdl;
+	/* process relocations */
+
+#if VERBOSE > 1
+	fprintf(stderr, ">> %d RELPLT relocations and %d RELA relocations\n",
+		head->pltreln, head->relan);
+#endif
+
+	for (i = 0; i < head->relan; i++) { /* DT_RELA relocations */
+		if (mppa_dl_apply_rela(head, head->rela[i]) == -1) {
+			mppa_dl_errno(E_RELOC);
+			return NULL;
+		}
+	}
+
+	for (i = 0; i < head->pltreln; i++) { /* DT_PLTREL relocations */
+		if (head->pltrel == DT_RELA) {
+			if (mppa_dl_apply_rela(
+				    head,
+				    ((ElfK1_Rela*)head->jmprel)[i]) == -1) {
+				mppa_dl_errno(E_RELOC);
+				return NULL;
+			}
+		} else {
+			mppa_dl_errno(E_PLT_RELOC);
+			return NULL;
+		}
+	}
+
+#if VERBOSE > 0
+	fprintf(stderr, "< mppa_dl_load()\n");
+#endif
+
+	return (void *)head;
 }
+
 
 void *mppa_dl_sym(void *handle, const char* symbol)
 {
-	return mppa_dl_sym_lookup((mppa_dl_handle_t*)handle, symbol);
+#if VERBOSE > 0
+	fprintf(stderr, "> mppa_dl_sym()\n");
+#endif
+
+	void *sym = mppa_dl_sym_lookup((mppa_dl_handle_t *)handle, symbol);
+
+#if VERBOSE > 0
+	fprintf(stderr, "< mppa_dl_sym()\n");
+#endif
+	return sym;
 }
+
 
 int mppa_dl_unload(void *handle)
 {
-	if (__mppa_dl_loglevel > 0)
-		fprintf(stderr, "--> mppa_dl_unload\n");
+#if VERBOSE > 0
+	fprintf(stderr, "> mppa_dl_unload()\n");
+#endif
 
 	int ret = 0;
+	mppa_dl_handle_t *hdl = (mppa_dl_handle_t*)handle;
 
-	if (elf_end(((mppa_dl_handle_t*)handle)->hdl_elf) != 0) {
-		mppa_dl_errno(E_ELF_END);
-		ret = -1;
-	}
-
-	mppa_dl_shdr_t *tmp, *rlc = ((mppa_dl_handle_t*)handle)->hdl_reloc_l;
-	while ( rlc != NULL) {
-		tmp = rlc->next;
-		free(rlc);
-		rlc = tmp;
-	}
-
-	free(((mppa_dl_handle_t*)handle)->hdl_addr);
-	free(handle);
+	free(hdl->addr); /* free allocated ELF image memory */
 
 	/* remove the handle from the list */
-	mppa_dl_handle_list_t *tit, *it = hdl_l_head;
-	while (it->handle != handle) {
-		it = it->child;
-	}
-	if (it == NULL) {
-		mppa_dl_errno(E_HDL_LIST);
-		ret = -1;
-	} else {
-		if (it->parent == NULL && it->child == NULL) {
-			/* empty the list */
-			hdl_l_head = NULL;
-		} else if (it->parent != NULL && it->child == NULL) {
-			/* remove the tail */
-			it->parent->child = NULL;
-		} else if (it->parent == NULL && it->child != NULL) {
-			/* remove the head */
-			it->child->parent = NULL;
-			hdl_l_head = it->child;
-		} else {
-			/* remove an element */
-			tit = it->child->parent;
-			it->child->parent = it->parent->child;
-			it->parent->child = tit;
+
+	if (hdl == head) /* removing the head of the list,
+			    moving the head pointer */
+		head = hdl->parent;
+
+	/* update parent's child pointer and child's parent pointer
+	   of the item to remove */
+	if (hdl->parent != NULL)
+		hdl->parent->child = hdl->child;
+	if (hdl->child != NULL)
+		hdl->child->parent = hdl->parent;
+
+	/* if after removing the item, the list size is equal to one,
+	   and _DYNAMIC symbol has been declared, unload it too */
+	if (head != NULL && _DYNAMIC != 0) {
+#if VERBOSE > 1
+		fprintf(stderr, ">> unload also handle for main program\n");
+#endif
+		if (head->parent == NULL) {
+			free(head->addr);
+			free(head);
+			head = NULL;
 		}
-		free(it);
 	}
 
-	if (__mppa_dl_loglevel > 0)
-		fprintf(stderr, "<-- mppa_dl_unload\n");
+	free(handle);
+
+#if VERBOSE > 0
+	fprintf(stderr, "< mppa_dl_unload()\n");
+#endif
 
 	return ret;
 }
