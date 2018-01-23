@@ -8,140 +8,142 @@
 
 void *mppa_dl_load_addr(mppa_dl_handle_t *hdl)
 {
-	return hdl->hdl_addr;
+#if VERBOSE > 0
+	fprintf(stderr, "- mppa_dl_load_addr()\n");
+#endif
+	return hdl->addr;
 }
 
-size_t mppa_dl_load_segments_memsz(mppa_dl_handle_t *hdl)
+
+int mppa_dl_init_handle(mppa_dl_handle_t *hdl, Elf32_Dyn *dyn,
+			void *off, mppa_dl_handle_t *parent)
 {
-	size_t memsz = 0;
-	int i;
-	GElf_Phdr phdr;
+#if VERBOSE > 0
+	fprintf(stderr, "> mppa_dl_init_handle()\n");
+#endif
+	size_t k = 0, relasz = 0, relaent = 0, pltrelsz = 0;
+	dyn = (ElfK1_Dyn *)((ElfK1_Addr)dyn + (ElfK1_Addr)off);
 
-	/* iterate program headers, in descending order, then compute the
-	   required memory size to load segments */
-	for (i = (int)hdl->hdl_phdrnum - 1; i >= 0; i--) {
-		if (gelf_getphdr(hdl->hdl_elf, i, &phdr) == NULL) {
-			mppa_dl_errno(E_ELF_PHDR);
-			return memsz;
-		}
+	hdl->addr = (ElfK1_Addr*)off;
+	hdl->type = ET_DYN;
+	hdl->nbucket = 0;
+	hdl->nchain = 0;
+	hdl->bucket = NULL;
+	hdl->chain = NULL;
+	hdl->hash = NULL;
+	hdl->rela = NULL;
+	hdl->relan = 0;
+	hdl->jmprel = NULL;
+	hdl->pltrel = DT_NULL;
+	hdl->pltreln = 0;
+	hdl->strtab = 0;
+	hdl->strsz = 0;
+	hdl->symtab = 0;
+	hdl->parent = parent;
+	hdl->child = NULL;
 
-		if (phdr.p_type == PT_LOAD) {
-			memsz = phdr.p_vaddr + phdr.p_memsz;
-			i = -1;
+	if (parent != NULL)
+		parent->child = hdl;
+
+	while (dyn[k].d_tag != DT_NULL) {
+		switch (dyn[k].d_tag) {
+		case DT_HASH:
+			hdl->hash = (ElfK1_Addr *)
+					(dyn[k].d_un.d_ptr + (ElfK1_Addr)off);
+			break;
+		case DT_STRTAB:
+			hdl->strtab = (char *)
+					(dyn[k].d_un.d_ptr + (ElfK1_Addr)off);
+			break;
+		case DT_STRSZ:
+			hdl->strsz = dyn[k].d_un.d_val;
+			break;
+		case DT_SYMTAB:
+			hdl->symtab = (ElfK1_Sym *)
+					(dyn[k].d_un.d_ptr + (ElfK1_Addr)off);
+			break;
+		case DT_RELA:
+			hdl->rela = (ElfK1_Rela *)
+					(dyn[k].d_un.d_ptr + (ElfK1_Addr)off);
+			break;
+		case DT_RELASZ:
+			relasz = dyn[k].d_un.d_val;
+			break;
+		case DT_JMPREL:
+			hdl->jmprel = (void *)
+					(dyn[k].d_un.d_ptr + (ElfK1_Addr)off);
+			break;
+		case DT_PLTREL:
+			hdl->pltrel = dyn[k].d_un.d_val;
+			break;
+		case DT_PLTRELSZ:
+			pltrelsz = dyn[k].d_un.d_val;
+			break;
+		case DT_RELAENT:
+			relaent = dyn[k].d_un.d_val;
+			break;
+		default:
+			break;
 		}
+		k++;
 	}
 
-	return memsz;
-}
+	hdl->nbucket = hdl->hash[0];
+	hdl->nchain = hdl->hash[1];
+	hdl->bucket = &hdl->hash[2];
+	hdl->chain = &hdl->hash[2+hdl->nbucket];
 
-size_t mppa_dl_load_segments_align(mppa_dl_handle_t *hdl)
-{
-	size_t malign = 0;
-	int i;
-	GElf_Phdr phdr;
+	if (relasz == 0 || relaent == 0)
+		hdl->relan = 0;
+	else
+		hdl->relan = relasz / relaent;
 
-	/* iterate program headers, in ascending order, then compute the
-	   maximum alignement required to load segments */
-	for (i = 0; i < (int)hdl->hdl_phdrnum; i++) {
-		if (gelf_getphdr(hdl->hdl_elf, i, &phdr) == NULL) {
-			mppa_dl_errno(E_ELF_PHDR);
-			return malign;
-		}
+	if (hdl->pltrel == DT_RELA || hdl->pltrel == DT_NULL)
+		hdl->pltreln = pltrelsz / relaent;
+	else
+		return -1;
 
-		if (phdr.p_type == PT_LOAD)
-			malign = malign >= phdr.p_align ? malign : phdr.p_align;
-	}
-
-	return malign;
-}
-
-int mppa_dl_add_relascn(mppa_dl_handle_t *hdl, Elf_Scn *scn)
-{
-	if (hdl->hdl_reloc_l != NULL) {
-		mppa_dl_shdr_t *tmp = hdl->hdl_reloc_l;
-		while (tmp->next != NULL) {
-			tmp = tmp->next;
-		}
-		tmp->next = (mppa_dl_shdr_t*)malloc(sizeof(mppa_dl_shdr_t));
-		tmp->next->scn = scn;
-		tmp->next->next = NULL;
-	} else {
-		hdl->hdl_reloc_l =
-			(mppa_dl_shdr_t*)malloc(sizeof(mppa_dl_shdr_t));
-		hdl->hdl_reloc_l->scn = scn;
-		hdl->hdl_reloc_l->next = NULL;
-	}
-
+#if VERBOSE > 0
+	fprintf(stderr, "< mppa_dl_init_handle()\n");
+#endif
 	return 0;
 }
 
-int mppa_dl_apply_reloc(mppa_dl_handle_t *hdl)
+
+int mppa_dl_apply_rela(mppa_dl_handle_t *hdl, ElfK1_Rela rel)
 {
-	if (__mppa_dl_loglevel > 0)
-		fprintf(stderr, "--> mppa_dl_apply_reloc\n");
+#if VERBOSE > 0
+	fprintf(stderr, "> mppa_dl_apply_rela()\n");
+#endif
+	ElfK1_Word tmp;
+	ElfK1_Sym sym = hdl->symtab[ELFK1_R_SYM(rel.r_info)];
 
-	int i;
-	GElf_Rela rela;
-	GElf_Sym sym;
-	unsigned tmp;
+#if VERBOSE > 1
+	fprintf(stderr,	">> relocation at %lx, of type %d, "
+		"with symbol '%s', and addend->%lx\n",
+		rel.r_offset, ELFK1_R_TYPE(rel.r_info),
+		&hdl->strtab[sym.st_name], rel.r_addend);
+#endif
 
-	mppa_dl_shdr_t *relocs = hdl->hdl_reloc_l;
-	while (relocs != NULL) {
-		if (__mppa_dl_loglevel == 2)
-			fprintf(stderr, "--relocation section:\n");
-
-		for (i = 0;
-		     gelf_getrela(elf_getdata(relocs->scn, NULL), i, &rela);
-		     i++) {
-
-			if (__mppa_dl_loglevel == 2)
-				fprintf(stderr,
-					"-reloc offset->%llx type->%llu"
-					"sym->%llu addend->%llx\n",
-					rela.r_offset,
-					GELF_R_TYPE(rela.r_info),
-					GELF_R_SYM(rela.r_info),
-					rela.r_addend);
-
-
-			switch (GELF_R_TYPE(rela.r_info)) {
-			case R_K1_RELATIVE:
-				tmp = ((unsigned)rela.r_addend
-				       + (unsigned)hdl->hdl_addr);
-				memcpy(hdl->hdl_addr + rela.r_offset, &tmp,
-				       sizeof(unsigned));
-				break;
-			default:
-				mppa_dl_errno(E_UNKN_RELOC);
-				return -1;
-			}
-
-
-
-			if (gelf_getsym(elf_getdata(hdl->hdl_dynsym, NULL),
-					GELF_R_SYM(rela.r_info),
-					&sym) == NULL) {
-				mppa_dl_errno(E_ELF_SYM);
-				return -1;
-			}
-			else {
-				if (__mppa_dl_loglevel == 2)
-					fprintf(stderr, "-symbol(.dynsym) %s, "
-						"name->%lu shndx->%d "
-						"value->%llu info->%d "
-						"size->%llu\n",
-						(char*)hdl->hdl_addr +
-						hdl->hdl_strtab + sym.st_name,
-						sym.st_name, sym.st_shndx,
-						sym.st_value, sym.st_info,
-						sym.st_size);
-			}
-		}
-		relocs = relocs->next;
+	switch (ELFK1_R_TYPE(rel.r_info)) {
+	case R_K1_RELATIVE:
+		tmp = ((ElfK1_Word)rel.r_addend + (ElfK1_Word)hdl->addr);
+		memcpy((void *)hdl->addr + rel.r_offset, &tmp,
+			sizeof(ElfK1_Word));
+		break;
+	case R_K1_JMP_SLOT:
+		tmp = (ElfK1_Word)mppa_dl_sym_lookup(hdl,
+			&hdl->strtab[sym.st_name]);
+		memcpy((void *)hdl->addr + rel.r_offset, &tmp,
+			sizeof(ElfK1_Word));
+		break;
+	default:
+		return -1;
 	}
 
-	if (__mppa_dl_loglevel > 0)
-		fprintf(stderr, "<-- mppa_dl_apply_reloc\n");
+#if VERBOSE > 0
+	fprintf(stderr, "< mppa_dl_apply_rela()\n");
+#endif
 
 	return 0;
 }

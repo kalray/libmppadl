@@ -7,24 +7,21 @@
 #ifndef MPPA_DL_ERROR_H
 #define MPPA_DL_ERROR_H
 
+#define VERBOSE 0
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <gelf.h>
 
-int __mppa_dl_loglevel;
-
 enum MPPA_DL_ERRNO {
 	E_NONE,
-	E_ELF_OLD,
-	E_ELF_MEM,
-	E_ELF_PHDRNUM,
-	E_ELF_PHDR,
-	E_ELF_SHDR,
-	E_ELF_END,
-	E_ELF_SYM,
 	E_MEM_ALIGN,
-	E_UNKN_RELOC,
-	E_HDL_LIST
+	E_RELOC,
+	E_PLT_RELOC,
+	E_END_CHAIN,
+	E_SYM_OUT,
+	E_NO_SYM,
+	E_INIT_HDL
 };
 
 int mppa_dl_errno_status;
