@@ -117,7 +117,7 @@ void *mppa_dl_load(const char *image)
 #endif
 
 	for (i = 0; i < head->relan; i++) { /* DT_RELA relocations */
-		if (mppa_dl_apply_rela(head, head->rela[i]) == -1) {
+		if (mppa_dl_apply_rela(head, head->rela[i]) != 0) {
 			mppa_dl_errno(E_RELOC);
 			return NULL;
 		}
@@ -127,7 +127,7 @@ void *mppa_dl_load(const char *image)
 		if (head->pltrel == DT_RELA) {
 			if (mppa_dl_apply_rela(
 				    head,
-				    ((ElfK1_Rela*)head->jmprel)[i]) == -1) {
+				    ((ElfK1_Rela*)head->jmprel)[i]) != 0) {
 				mppa_dl_errno(E_RELOC);
 				return NULL;
 			}

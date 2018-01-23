@@ -13,7 +13,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <gelf.h>
 
 enum MPPA_DL_ERRNO {
 	E_NONE,
@@ -29,6 +28,7 @@ enum MPPA_DL_ERRNO {
 int mppa_dl_errno_status;
 
 void mppa_dl_errno(int errno);
+int mppa_dl_errno_get_status();
 
 extern char *mppa_dl_error(void);
 
