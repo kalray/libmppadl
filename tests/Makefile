@@ -1,16 +1,12 @@
 TESTS_NAMES= \
-	inter_module_call_noplt \
 	empty_module \
 	empty_module_unload \
-	empty_module_unload_free \
 	create_destroy_loop \
-	load_unload_loop \
 	plt_test \
 	char_s \
 	three_load_modules \
 	static_const_char_s \
 	const_char_s \
-	inter_module_call \
 	simple_printf_reloc \
 	global_pointer \
 	sym_reloc \
