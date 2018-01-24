@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include "mppa_dl.h"
 
-#include "generated/module_A_hex.h"
+#include "module_A_hex.h"
 
 int main(int argc, char *argv[])
 {

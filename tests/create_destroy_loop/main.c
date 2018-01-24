@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <mppa_dl.h>
 
-#include "generated/create_destroy_hex.h"
+#include "create_destroy_hex.h"
 #define NB_LOOPS 100
 
 int main(int argc, char *argv[])

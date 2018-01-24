@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <mppa_dl.h>
 
-#include "generated/empty_module_unload_hex.h"
+#include "empty_module_unload_hex.h"
 
 int main(int argc, char *argv[])
 {
