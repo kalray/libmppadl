@@ -32,7 +32,7 @@ system := bare
 board := developer
 
 MAIN_LDFLAGS := -L $(MPPADL_LIB_PATH) -L $(EMPTY_LIB_PATH) $(SPEC_LDFLAGS) $(if $(findstring hypervisor,$(SPEC_LDFLAGS)),-lvbsp,) $(if $(findstring hypervisor,$(SPEC_LDFLAGS)),$(if $(findstring nodeos,$(SPEC_LDFLAGS)),,$(if $(findstring rtems,$(SPEC_LDFLAGS)),,-lutask)),) -Wl,-E -Wl,--dynamic-list-data -lmppadl -lelf -lempty
-MAIN_CFLAGS := $(SPEC_CFLAGS) -g
+MAIN_CFLAGS := -I $(GENERATED) $(SPEC_CFLAGS) -g
 
 ifeq ($(MPPADL_LIB_PATH),)
 $(error "Missing MPPADL_LIB_PATH")

@@ -5,7 +5,7 @@
 
 #include <mppa_dl.h>
 
-#include "generated/simple_printf_reloc_hex.h"
+#include "simple_printf_reloc_hex.h"
 
 int main(int argc, char *argv[])
 {

@@ -5,7 +5,7 @@
 #include <mppa_dl.h>
 #include <malloc.h>
 
-#include "generated/empty_module_hex.h"
+#include "empty_module_hex.h"
 
 static int memalign_called = 0;
 static int malloc_called = 0;

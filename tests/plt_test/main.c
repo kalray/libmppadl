@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <mppa_dl.h>
 
-#include "generated/plt_test_hex.h"
+#include "plt_test_hex.h"
 
 // this function should be used by the dynamic module
 int self_contained_magic_func_increment_used_for_reloc(int arg) {

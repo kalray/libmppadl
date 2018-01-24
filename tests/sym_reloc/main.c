@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <mppa_dl.h>
 
-#include "generated/sym_reloc_hex.h"
+#include "sym_reloc_hex.h"
 
 // this symbol should be used by loaded module
 int magic_symbol_used_for_reloc = 0xDEADBEEF;

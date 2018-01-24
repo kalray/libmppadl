@@ -1,6 +1,6 @@
 #include <mppa_dl.h>
 
-#include "generated/module_B_hex.h"
+#include "module_B_hex.h"
 
 extern int printf(const char *fmt, ...);
 

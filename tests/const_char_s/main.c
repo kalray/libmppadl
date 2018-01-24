@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <mppa_dl.h>
 
-#include "generated/const_char_s_hex.h"
+#include "const_char_s_hex.h"
 
 int main(int argc, char *argv[])
 {
