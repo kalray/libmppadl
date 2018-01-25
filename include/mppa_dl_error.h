@@ -7,8 +7,6 @@
 #ifndef MPPA_DL_ERROR_H
 #define MPPA_DL_ERROR_H
 
-#define VERBOSE 0
-
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -23,7 +21,10 @@ enum MPPA_DL_ERRNO {
 	E_INIT_HDL
 };
 
+int mppa_dl_loglevel;
 int mppa_dl_errno_status;
+
+void mppa_dl_set_loglevel(int level);
 
 void mppa_dl_errno(int errno);
 int mppa_dl_errno_get_status();
