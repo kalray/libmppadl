@@ -12,6 +12,10 @@
 #include <string.h>
 #include <libelf.h>
 
+#ifdef __mos__
+#include <vbsp.h>
+#endif
+
 #include "mppa_dl_types.h"
 #include "mppa_dl_error.h"
 #include "mppa_dl_mem.h"
