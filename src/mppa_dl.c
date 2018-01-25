@@ -9,9 +9,9 @@ mppa_dl_handle_t *head = NULL;
 
 void *mppa_dl_load(const char *image)
 {
-#if VERBOSE > 0
-	fprintf(stderr, "> mppa_dl_load()\n");
-#endif
+	if (mppa_dl_loglevel > 0) {
+		fprintf(stderr, "> mppa_dl_load()\n");
+	}
 
 	size_t i;
 	size_t memsz = 0, malign = 0;
@@ -29,9 +29,9 @@ void *mppa_dl_load(const char *image)
 	/* handle list is empty and _DYNAMIC symbol has been declared by the
 	   main program: add an handle for it */
 	if (head == NULL && _DYNAMIC != 0) {
-#if VERBOSE > 1
-		fprintf(stderr, ">> main program have a .dynamic section\n");
-#endif
+		if (mppa_dl_loglevel > 1) {
+			fprintf(stderr, ">> main program have a .dynamic section\n");
+		}
 		head = (mppa_dl_handle_t *)
 			mppa_dl_malloc(sizeof(mppa_dl_handle_t));
 		if (mppa_dl_init_handle(head, _DYNAMIC, NULL, NULL) != 0) {
@@ -40,12 +40,14 @@ void *mppa_dl_load(const char *image)
 		}
 	}
 
-#if VERBOSE > 1
-	fprintf(stderr, ">> ELF image contains %u program headers, "
-		"starting at offset 0x%lx\n", ehdr->e_phnum, ehdr->e_phoff);
-	fprintf(stderr, ">> ELF image contains %u section headers, "
-		"starting at offset 0x%lx\n", ehdr->e_shnum, ehdr->e_shoff);
-#endif
+	if (mppa_dl_loglevel > 1) {
+		fprintf(stderr, ">> ELF image contains %u program headers, "
+			"starting at offset 0x%lx\n",
+			ehdr->e_phnum, ehdr->e_phoff);
+		fprintf(stderr, ">> ELF image contains %u section headers, "
+			"starting at offset 0x%lx\n",
+			ehdr->e_shnum, ehdr->e_shoff);
+	}
 	/* allocate memory to load needed ELF segments */
 
 	/* determine memory size and alignement constraints */
@@ -59,14 +61,14 @@ void *mppa_dl_load(const char *image)
 	addr = mppa_dl_memalign(malign, memsz);
 #ifdef __mos__
 	bsp_set_page_access_rights((uintptr_t) addr, ((uintptr_t) addr) + memsz,
-		_K1_MMU_PA_RWX_RWX);
+				   _K1_MMU_PA_RWX_RWX);
 #endif
 
-#if VERBOSE > 1
-	fprintf(stderr, ">> allocate %d bytes of memory at 0x%lx, "
-		"with alignement: %d\n",
-		memsz, (ElfK1_Addr)addr, malign);
-#endif
+	if (mppa_dl_loglevel > 1) {
+		fprintf(stderr, ">> allocate %d bytes of memory at 0x%lx, "
+			"with alignement: %d\n",
+			memsz, (ElfK1_Addr)addr, malign);
+	}
 
 	if (addr == NULL) {
 		mppa_dl_errno(E_MEM_ALIGN);
@@ -79,12 +81,12 @@ void *mppa_dl_load(const char *image)
 		case PT_LOAD: /* load segment to memory */
 			memcpy(addr + phdr[i].p_vaddr,
 			       image + phdr[i].p_offset, phdr[i].p_memsz);
-#if VERBOSE > 1
-			fprintf(stderr,
-				">> load segment %d, %lu bytes at 0x%lx\n",
-				i, phdr[i].p_memsz,
-				(ElfK1_Addr)addr + phdr[i].p_vaddr);
-#endif
+			if (mppa_dl_loglevel > 1) {
+				fprintf(stderr,
+					">> load segment: %lu bytes at 0x%lx\n",
+					phdr[i].p_memsz,
+					(ElfK1_Addr)addr + phdr[i].p_vaddr);
+			}
 			break;
 		default: /* do not load other segments */
 			break;
@@ -116,10 +118,11 @@ void *mppa_dl_load(const char *image)
 
 	/* process relocations */
 
-#if VERBOSE > 1
-	fprintf(stderr, ">> %d RELPLT relocations and %d RELA relocations\n",
-		head->pltreln, head->relan);
-#endif
+	if (mppa_dl_loglevel > 1) {
+		fprintf(stderr,
+			">> %d RELPLT relocations and %d RELA relocations\n",
+			head->pltreln, head->relan);
+	}
 
 	for (i = 0; i < head->relan; i++) { /* DT_RELA relocations */
 		if (mppa_dl_apply_rela(head, head->rela[i]) != 0) {
@@ -142,9 +145,9 @@ void *mppa_dl_load(const char *image)
 		}
 	}
 
-#if VERBOSE > 0
-	fprintf(stderr, "< mppa_dl_load()\n");
-#endif
+	if (mppa_dl_loglevel > 0) {
+		fprintf(stderr, "< mppa_dl_load()\n");
+	}
 
 	return (void *)head;
 }
@@ -152,24 +155,24 @@ void *mppa_dl_load(const char *image)
 
 void *mppa_dl_sym(void *handle, const char* symbol)
 {
-#if VERBOSE > 0
-	fprintf(stderr, "> mppa_dl_sym()\n");
-#endif
+	if (mppa_dl_loglevel > 0) {
+		fprintf(stderr, "> mppa_dl_sym()\n");
+	}
 
 	void *sym = mppa_dl_sym_lookup((mppa_dl_handle_t *)handle, symbol);
 
-#if VERBOSE > 0
-	fprintf(stderr, "< mppa_dl_sym()\n");
-#endif
+	if (mppa_dl_loglevel > 0) {
+		fprintf(stderr, "< mppa_dl_sym()\n");
+	}
 	return sym;
 }
 
 
 int mppa_dl_unload(void *handle)
 {
-#if VERBOSE > 0
-	fprintf(stderr, "> mppa_dl_unload()\n");
-#endif
+	if (mppa_dl_loglevel > 0) {
+		fprintf(stderr, "> mppa_dl_unload()\n");
+	}
 
 	int ret = 0;
 	mppa_dl_handle_t *hdl = (mppa_dl_handle_t*)handle;
@@ -192,9 +195,10 @@ int mppa_dl_unload(void *handle)
 	/* if after removing the item, the list size is equal to one,
 	   and _DYNAMIC symbol has been declared, unload it too */
 	if (head != NULL && _DYNAMIC != 0) {
-#if VERBOSE > 1
-		fprintf(stderr, ">> unload also handle for main program\n");
-#endif
+		if (mppa_dl_loglevel > 1) {
+			fprintf(stderr,
+				">> unload also handle for main program\n");
+		}
 		if (head->parent == NULL) {
 			mppa_dl_free(head->addr);
 			mppa_dl_free(head);
@@ -204,9 +208,9 @@ int mppa_dl_unload(void *handle)
 
 	mppa_dl_free(handle);
 
-#if VERBOSE > 0
-	fprintf(stderr, "< mppa_dl_unload()\n");
-#endif
+	if (mppa_dl_loglevel > 0) {
+		fprintf(stderr, "< mppa_dl_unload()\n");
+	}
 
 	return ret;
 }

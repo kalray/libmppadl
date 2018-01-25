@@ -4,7 +4,15 @@
 
 #include "mppa_dl_error.h"
 
+int mppa_dl_loglevel = 0;
 int mppa_dl_errno_status = E_NONE;
+
+
+void mppa_dl_set_loglevel(int level)
+{
+	mppa_dl_loglevel = level;
+}
+
 
 void mppa_dl_errno(int errno)
 {
