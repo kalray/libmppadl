@@ -59,6 +59,10 @@ void *mppa_dl_load(const char *image)
 	}
 
 	addr = mppa_dl_memalign(malign, memsz);
+#ifdef __mos__
+	bsp_set_page_access_rights((uintptr_t) addr, ((uintptr_t) addr) + memsz,
+		_K1_MMU_PA_RWX_RWX);
+#endif
 
 #if VERBOSE > 1
 	fprintf(stderr, ">> allocate %d bytes of memory at 0x%lx, "
