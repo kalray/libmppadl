@@ -1,15 +1,15 @@
-TESTS_NAMES= \
-	empty_module \
-	empty_module_unload \
-	create_destroy_loop \
-	plt_test \
-	char_s \
-	three_load_modules \
-	static_const_char_s \
-	const_char_s \
-	simple_printf_reloc \
-	global_pointer \
-	sym_reloc \
+TESTS_NAMES =			\
+	empty_module		\
+	empty_module_unload	\
+	create_destroy_loop	\
+	plt_test		\
+	char_s			\
+	three_load_modules	\
+	static_const_char_s	\
+	const_char_s		\
+	simple_printf_reloc	\
+	global_pointer		\
+	sym_reloc		\
 	mem_func_override
 
 ROOT_DIR=$(abspath $(CURDIR))
