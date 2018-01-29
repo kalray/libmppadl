@@ -48,13 +48,13 @@ void *mppa_dl_sym_lookup2(mppa_dl_handle_t *hdl, const char *symbol)
 		}
 		if (mppa_dl_loglevel > 0)
 			fprintf(stderr, "< mppa_dl_sym_lookup2()\n");
-		
+
 		return (ElfK1_Addr *)((ElfK1_Addr)hdl->addr + sym.st_value);
 	}
 
 	if (mppa_dl_loglevel > 0)
 		fprintf(stderr, "< mppa_dl_sym_lookup2()\n");
-	
+
 	mppa_dl_errno(E_NO_SYM);
 	return NULL;
 }
@@ -86,7 +86,7 @@ void *mppa_dl_sym_lookup(mppa_dl_handle_t *hdl, const char* symbol)
 
 	/* look in the head of the handle list */
 	sym = mppa_dl_sym_lookup2(hdl, symbol);
-	if (sym != NULL || 
+	if (sym != NULL ||
 	    (sym == NULL && mppa_dl_errno_get_status() == E_NONE))
 		return sym;
 

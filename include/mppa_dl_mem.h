@@ -21,4 +21,8 @@ void mppa_dl_set_memalign(void *(*ptr)(size_t , size_t ));
 void mppa_dl_set_malloc(void *(*ptr)(size_t));
 void mppa_dl_set_free(void (*ptr)(void *));
 
+#ifdef __rtems__
+void * mppa_dl_rtems_memalign_wrapper(size_t boundary, size_t size);
+#endif
+
 #endif

@@ -133,7 +133,7 @@ int mppa_dl_apply_rela(mppa_dl_handle_t *hdl, ElfK1_Rela rel)
 		break;
 	case R_K1_GLOB_DAT:
 	case R_K1_JMP_SLOT:
-		tmp = (ElfK1_Word)mppa_dl_sym_lookup(hdl,
+		tmp = (ElfK1_Word)(ElfK1_Word*)mppa_dl_sym_lookup(hdl,
 			&hdl->strtab[sym.st_name]);
 
 		if (tmp == 0 && mppa_dl_errno_get_status() != E_NONE)

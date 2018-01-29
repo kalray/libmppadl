@@ -13,6 +13,7 @@
 
 #include <string.h>
 #include <libelf.h>
+#include <HAL/hal/core/cache.h>
 
 #ifdef __mos__
 #include <vbsp.h>
