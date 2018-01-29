@@ -25,29 +25,19 @@ ifeq ($(ARCH),k1b)
  K1_CLUSTER += --march=bostan
 endif
 
-MPPADL_LIB_PATH=$(abspath ../../)
-EMPTY_LIB_PATH=$(abspath ..)
 
-system := bare
-board := developer
-
-MAIN_LDFLAGS := -L $(MPPADL_LIB_PATH) -L $(EMPTY_LIB_PATH) $(SPEC_LDFLAGS) $(if $(findstring hypervisor,$(SPEC_LDFLAGS)),-lvbsp,) $(if $(findstring hypervisor,$(SPEC_LDFLAGS)),$(if $(findstring nodeos,$(SPEC_LDFLAGS)),,$(if $(findstring rtems,$(SPEC_LDFLAGS)),,-lutask)),) -Wl,-E -Wl,--dynamic-list-data -lmppadl -lelf -lempty
-MAIN_CFLAGS := -I $(GENERATED) $(SPEC_CFLAGS) -g
+MAIN_LDFLAGS := -L $(MPPADL_LIB_PATH) $(SPEC_LDFLAGS) $(if $(findstring hypervisor,$(SPEC_LDFLAGS)),-lvbsp,) $(if $(findstring hypervisor,$(SPEC_LDFLAGS)),$(if $(findstring nodeos,$(SPEC_LDFLAGS)),,$(if $(findstring rtems,$(SPEC_LDFLAGS)),,-lutask)),) -Wl,-E -Wl,--dynamic-list-data -lmppadl -lsomppadl -lelf
+MAIN_CFLAGS := -I$(GENERATED) $(SPEC_CFLAGS) -g -O0
 
 ifeq ($(MPPADL_LIB_PATH),)
 $(error "Missing MPPADL_LIB_PATH")
 endif
 
-MPPADL_INCLUDE_PATH ?= $(abspath ../../include/) #$(abspath $(CURDIR)/../../libmppa_dl/)
+MPPADL_INCLUDE_PATH ?= $(abspath $(CURDIR)/../../include/)
 
 k1-cflags := -I $(MPPADL_INCLUDE_PATH) -Wall -Werror $(SPEC_CFLAGS)
-k1-lflags := $(SPEC_LDFLAGS) 
+k1-lflags := $(SPEC_LDFLAGS)
 
-## io-dyn-lflags := -shared -Wl,-Bsymbolic -nostdlib -Wl,--hash-style=sysv 
-## io-dyn-cflags := -fPIC -fno-builtin $(k1-lflags)
-
-## cluster-dyn-lflags := $(io-dyn-lflags)
-## cluster-dyn-cflags := $(io-dyn-cflags)
 
 default : all
 
@@ -83,4 +73,3 @@ else
 endif
 
 endef
-
