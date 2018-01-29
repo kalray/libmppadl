@@ -40,6 +40,7 @@ typedef Elf32_Phdr ElfK1_Phdr;
 extern __attribute__((weak)) ElfK1_Dyn _DYNAMIC[];
 
 enum MPPA_DL_RELOCATIONS {
+	R_K1_32 = 2,
 	R_K1_GLOB_DAT = 17,
 	R_K1_JMP_SLOT = 31,
 	R_K1_RELATIVE = 32

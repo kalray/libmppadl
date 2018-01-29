@@ -126,6 +126,7 @@ int mppa_dl_apply_rela(mppa_dl_handle_t *hdl, ElfK1_Rela rel)
 	}
 
 	switch (ELFK1_R_TYPE(rel.r_info)) {
+	case R_K1_32:
 	case R_K1_RELATIVE:
 		tmp = ((ElfK1_Word)rel.r_addend + (ElfK1_Word)hdl->addr);
 		memcpy((void *)hdl->addr + rel.r_offset, &tmp,
