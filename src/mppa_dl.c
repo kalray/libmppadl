@@ -145,6 +145,12 @@ void *mppa_dl_load(const char *image)
 		}
 	}
 
+
+	__builtin_k1_wpurge();
+	__builtin_k1_fence();
+	__k1_icache_invalidate();
+
+
 	if (mppa_dl_loglevel > 0) {
 		fprintf(stderr, "< mppa_dl_load()\n");
 	}
