@@ -42,7 +42,5 @@ INPUT                  = include mppadl.dox
 # left blank the current directory will be used.
 # In Doxyfile you can use ENV (and not make) variable (O is the output dir when using kalray makefile)
 #
-#OUTPUT_DIRECTORY       = $(O)/doc/
-OUTPUT_DIRECTORY        = doc/
-
-WARN_LOGFILE            = doxygen_errors.log
+OUTPUT_DIRECTORY       = $(O)/doc/
+WARN_LOGFILE           = $(O)/doxygen_errors.log
