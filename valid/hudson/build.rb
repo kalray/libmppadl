@@ -118,12 +118,13 @@ build   = ParallelTarget.new("build", repo, [clean], [])
 valid   = ParallelTarget.new("valid", repo, [build], [])
 install = Target.new("install", repo, [valid], [])
 package = Target.new("package", repo, [install], [])
+doc     = Target.new("doc", repo, [], [])
 
 install.write_prefix()
 
-b = Builder.new("mppadl", options, [clean, build, install, valid, package])
+b = Builder.new("mppadl", options, [clean, build, doc, install, valid, package])
 
-b.default_targets = [package]
+b.default_targets = [doc]
 distrib_info      = b.get_distrib_info()
 
 b.logsession = arch
@@ -145,6 +146,17 @@ native_builds   = []
 cmake_opts      = []
 build_types     = []
 machine_types   = []
+
+
+doxygen_dir=File.join(workspace,"kEnv/k1tools/usr/local/k1Req","doxygen","1.8.8")
+
+b.target("doc") do
+  b.logtitle = "Report for mppadl doc"
+
+  cd mppadl_path
+
+  b.run("K1_TOOLCHAIN_DIR='#{toolroot}' O=#{root_build_dir} DOXYGEN_DIR='#{doxygen_dir}' make doc")
+end
 
 
 b.target("build") do
