@@ -44,3 +44,5 @@ INPUT                  = include mppadl.dox
 #
 OUTPUT_DIRECTORY       = $(O)/doc/
 WARN_LOGFILE           = $(O)/doxygen_errors.log
+
+EXCLUDE_SYMBOLS	       = mppa_dl_handle

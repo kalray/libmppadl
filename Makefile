@@ -1,6 +1,6 @@
 system-name := bare
 
-# build.rb defines the following variables: O, CLUSTER_TARGET, CFLAGS, INSTALL_LIBDIR, INSTALL_INCLUDEDIR, DOXYGEN_DIR
+# build.rb defines the following variables: O, CLUSTER_TARGET, CFLAGS, INSTALL_LIBDIR, INSTALL_INCLUDEDIR, DOXYGEN_DIR, DOC_PREFIX
 
 MPPADL_SRCS = 			\
 	src/mppa_dl.c 		\
@@ -35,9 +35,15 @@ install:
 	cp $(O)/lib/$(CLUSTER_TARGET)/lib*mppadl.{a,so} $(INSTALL_LIBDIR)
 	cp include/*.h $(INSTALL_INCLUDEDIR)
 
+doc-install:
+	mkdir -p $(DOC_PREFIX)/share/doc/libmppadl
+	cp -r $(O)/doc/html $(DOC_PREFIX)/share/doc/libmppadl/
+	install $(O)/doc/latex/libmppadl.pdf $(DOC_PREFIX)/share/doc/libmppadl/
+
 doc:
 	$(DOXYGEN_DIR)/bin/doxygen Doxyfile
 	[ ! -s $(O)/doxygen_errors.log ] || echo "Missing documentation, see $(O)/doxygen_errors.log"
 	[ ! -s $(O)/doxygen_errors.log ] || exit 1
+	make -f Makefile.doc
 
 .PHONY: doc

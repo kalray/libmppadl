@@ -1,0 +1,24 @@
+DESTDIR := build/doc/latex/
+BUILDTYPE := Release
+
+DOXYGEN := $(DOXYGEN_DIR)/bin/doxygen
+
+KALRAY_LATEX_PATH := $(abspath ../kEnv/k1tools/usr/local/k1Req/kalray_internal/share/kalray-latex)
+RUBBER ?= $(abspath ../kEnv/k1tools/usr/local/k1Req/kalray_internal/bin/rubber)
+
+MY_TARGETS = libmppadl.pdf
+
+libmppadl.pdf-doxygen := true
+libmppadl.pdf-TITLE := Kalray MPPADL Library API
+libmppadl.pdf-ABSTRACT := MPPA programming interface to dynamic linking loader
+libmppadl.pdf-KETD := KETD-348
+libmppadl.pdf-WEEK := 05
+libmppadl.pdf-YEAR := 2018
+libmppadl.pdf-OWNER_NAME := Laurent Thévenoux
+libmppadl.pdf-OWNER_MAIL := lthevenoux@kalray.eu
+libmppadl.pdf-TEAM_NAME := Kalray Core Dev Team
+libmppadl.pdf-TEAM_MAIL := ml.coredev@kalray.eu
+libmppadl.pdf-KEYWORDS := kalray, library, dynamic linking, MPPA.
+libmppadl.pdf-DOXYGEN_LATEX_DIR := $(DESTDIR)/
+
+include $(KALRAY_LATEX_PATH)/make/Makefile.master
