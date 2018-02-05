@@ -47,27 +47,28 @@ enum MPPA_DL_RELOCATIONS {
 };
 
 typedef struct mppa_dl_handle {
-	ElfK1_Addr *addr;
-	ElfK1_Half type;
+	ElfK1_Addr *addr;   /* ELF memory image address */
+	ElfK1_Half type;    /* ELF type (e_type from ElfK1_Ehdr) */
 
+	ElfK1_Word *hash;   /* Symbol Hash Table address */
 	ElfK1_Word nbucket;
 	ElfK1_Word nchain;
-	ElfK1_Word *bucket;
-	ElfK1_Word *chain;
+	ElfK1_Word *bucket; /* first bucket entry */
+	ElfK1_Word *chain;  /* first chain entry */
 
-	ElfK1_Word *hash;
+	ElfK1_Rela *rela;   /* first DT_RELA relocation entry */
+	size_t     relan;   /* number of DT_RELA relocations */
 
-	ElfK1_Rela *rela;
-	size_t     relan;
+	void       *jmprel; /* first DT_JMPREL relocation entry (PLT) */
+	ElfK1_Word pltrel;  /* type of DT_JMPREL's relocations
+			       (either DT_REL or DT_RELA) */
+	size_t     pltreln; /* number of DT_JMPREL relocations */
 
-	void       *jmprel;
-	ElfK1_Word pltrel;
-	size_t     pltreln;
+	char       *strtab; /* address of the DT_STRTAB string table */
+	size_t     strsz;   /* size in bytes of the DT_STRTAB string table */
+	ElfK1_Sym  *symtab; /* address of the DT_SYMTAB symbol table */
 
-	char       *strtab;
-	size_t     strsz;
-	ElfK1_Sym  *symtab;
-
+	/* mppa_dl_handle is a node of a doubly linked list */
 	struct mppa_dl_handle *parent;
 	struct mppa_dl_handle *child;
 } mppa_dl_handle_t;

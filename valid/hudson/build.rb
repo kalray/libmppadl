@@ -84,6 +84,7 @@ prefix          = options.fetch("prefix", File.expand_path("none",workspace))
 install_prefix  = File.join(prefix,"mppadl","devimage")
 toolroot        = options.fetch("toolroot", File.expand_path("none",workspace))
 pkg_prefix_name = options.fetch("pi-prefix-name","#{arch}-")
+kalray_internal = File.join(prefix,"kalray_internal")
 
 
 march_valid_hash = Hash[*options["march_valid"].split(/::/).map{|tmp_arch| tmp_arch.split(/:/)}.flatten]
@@ -106,6 +107,7 @@ board              = options['board'].to_s
 root_build_dir        = File.join(mppadl_path, "build")
 root_tmp_install_dir  = File.join(root_build_dir, "tmp_install")
 root_tmp_multilib_dir = File.join(root_tmp_install_dir, install_prefix)
+doxygen_dir           = File.join(workspace, "kEnv/k1tools/usr/local/k1Req", "doxygen", "1.8.8")
 
 target     = options["target"]
 toolchain  = options["toolchain"].to_s
@@ -114,17 +116,17 @@ build_type = options['build_type'].to_s
 repo = Git.new(mppadl_clone,workspace)
 
 clean   = CleanTarget.new("clean", repo, [])
-build   = ParallelTarget.new("build", repo, [clean], [])
+build   = ParallelTarget.new("build", repo, [], [])
+doc     = Target.new("doc", repo, [])
 valid   = ParallelTarget.new("valid", repo, [build], [])
-install = Target.new("install", repo, [valid], [])
+install = ParallelTarget.new("install", repo, [valid], [])
 package = Target.new("package", repo, [install], [])
-doc     = Target.new("doc", repo, [], [])
 
 install.write_prefix()
 
-b = Builder.new("mppadl", options, [clean, build, doc, install, valid, package])
+b = Builder.new("mppadl", options, [clean, doc, build, valid, install, package])
 
-b.default_targets = [doc]
+b.default_targets = [doc, package]
 distrib_info      = b.get_distrib_info()
 
 b.logsession = arch
@@ -147,8 +149,6 @@ cmake_opts      = []
 build_types     = []
 machine_types   = []
 
-
-doxygen_dir=File.join(workspace,"kEnv/k1tools/usr/local/k1Req","doxygen","1.8.8")
 
 b.target("doc") do
   b.logtitle = "Report for mppadl doc"
@@ -309,13 +309,15 @@ b.target("install") do
 	end
 
 	b.run("K1_TOOLCHAIN_DIR='#{toolroot}' O=#{build_dir} CLUSTER_TARGET=#{cluster_target} " +
-	      "INSTALL_LIBDIR=#{libdir} INSTALL_INCLUDEDIR=#{includedir} make install")
+	      "INSTALL_LIBDIR=#{libdir} INSTALL_INCLUDEDIR=#{includedir} DOC_PREFIX=#{kalray_internal} make install")
 
 	# Copy to toolroot
 	b.rsync(install_prefix,toolroot)
       end
     end
   end
+
+  b.run("K1_TOOLCHAIN_DIR='#{toolroot}' O=#{root_build_dir} DOC_PREFIX=#{kalray_internal} make doc-install")
 end
 
 
