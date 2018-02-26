@@ -1,0 +1,8 @@
+Found module_main in moduleA at VARIABLE_VALUE_REMOVED_FROM_TEST_RESULT
+Found module_main in moduleB at VARIABLE_VALUE_REMOVED_FROM_TEST_RESULT
+Module load address is VARIABLE_VALUE_REMOVED_FROM_TEST_RESULT
+Module load address is VARIABLE_VALUE_REMOVED_FROM_TEST_RESULT
+Ret value (moduleA) : 0
+Ret value (moduleB) : 0
+[module A] Hello!
+[module B] Hello!

@@ -167,7 +167,7 @@ void *mppa_dl_sym(void *handle, const char* symbol)
 		fprintf(stderr, "> mppa_dl_sym()\n");
 	}
 
-	void *sym = mppa_dl_sym_lookup((mppa_dl_handle_t *)handle, symbol);
+	void *sym = mppa_dl_sym_lookup((mppa_dl_handle_t *)handle, symbol, 1);
 
 	if (mppa_dl_loglevel > 0) {
 		fprintf(stderr, "< mppa_dl_sym()\n");
