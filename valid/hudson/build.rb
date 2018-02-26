@@ -153,6 +153,8 @@ machine_types   = []
 b.target("doc") do
   b.logtitle = "Report for mppadl doc"
 
+  mkdir_p root_build_dir
+
   cd mppadl_path
 
   b.run("K1_TOOLCHAIN_DIR='#{toolroot}' O=#{root_build_dir} DOXYGEN_DIR='#{doxygen_dir}' make doc")
