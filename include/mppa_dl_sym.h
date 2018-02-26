@@ -12,7 +12,7 @@
 #include "mppa_dl_types.h"
 #include "mppa_dl_error.h"
 
-void *mppa_dl_sym_lookup(mppa_dl_handle_t *hdl, const char *symbol);
+void *mppa_dl_sym_lookup(mppa_dl_handle_t *hdl, const char *symbol, int local);
 
 void *mppa_dl_sym_lookup2(mppa_dl_handle_t *hdl, const char *symbol);
 

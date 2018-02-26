@@ -58,31 +58,38 @@ void *mppa_dl_sym_lookup2(mppa_dl_handle_t *hdl, const char *symbol)
 }
 
 
-void *mppa_dl_sym_lookup(mppa_dl_handle_t *hdl, const char* symbol)
+void *mppa_dl_sym_lookup(mppa_dl_handle_t *hdl, const char* symbol, int local)
 {
 	if (mppa_dl_loglevel > 0)
 		fprintf(stderr, "> mppa_dl_sym_lookup()\n");
 
 	void *sym;
+	mppa_dl_handle_t *lookat;
 
-	/* symbol search start at first parent of the current handle. */
-	mppa_dl_handle_t *lookat = hdl->parent;
+	/* search symbol globally */
+	if (local == 0) {
 
-	/* look in the tail of handle list */
-	while (lookat != NULL) {
-		sym = mppa_dl_sym_lookup2(lookat, symbol);
-		if (sym != NULL ||
-		    (sym == NULL && mppa_dl_errno_get_status() == E_NONE)) {
-			if (mppa_dl_loglevel > 0)
-				fprintf(stderr, "< mppa_dl_sym_lookup()\n");
+		/* symbol search start at first parent of the current handle. */
+		lookat = hdl->parent;
 
-			return sym;
-		} else {
-			lookat = lookat->parent;
+		/* look in the tail of handle list */
+		while (lookat != NULL) {
+			sym = mppa_dl_sym_lookup2(lookat, symbol);
+			if (sym != NULL ||
+			    (sym == NULL &&
+			     mppa_dl_errno_get_status() == E_NONE)) {
+				if (mppa_dl_loglevel > 0)
+					fprintf(stderr,
+						"< mppa_dl_sym_lookup()\n");
+
+				return sym;
+			} else {
+				lookat = lookat->parent;
+			}
 		}
 	}
 
-	/* look in the head of the handle list */
+	/* look in the head of the handle list (or local serach only) */
 	sym = mppa_dl_sym_lookup2(hdl, symbol);
 	if (sym != NULL ||
 	    (sym == NULL && mppa_dl_errno_get_status() == E_NONE))
