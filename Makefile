@@ -2,12 +2,13 @@ system-name := bare
 
 # build.rb defines the following variables: O, CLUSTER_TARGET, CFLAGS, INSTALL_LIBDIR, INSTALL_INCLUDEDIR, DOXYGEN_DIR, DOC_PREFIX
 
-MPPADL_SRCS = 			\
-	src/mppa_dl.c 		\
-	src/mppa_dl_load.c 	\
-	src/mppa_dl_sym.c 	\
-	src/mppa_dl_error.c 	\
-	src/mppa_dl_mem.c
+MPPADL_SRCS = 				\
+	src/mppa_dl.c 			\
+	src/mppa_dl_load.c 		\
+	src/mppa_dl_sym.c 		\
+	src/mppa_dl_error.c 		\
+	src/mppa_dl_mem.c		\
+	src/mppa_dl_autotraces.c
 
 use-module := strict-flags
 

@@ -24,6 +24,12 @@ enum MPPA_DL_ERRNO {
 int mppa_dl_loglevel;
 int mppa_dl_errno_status;
 
+int mppa_dl_autotraces;
+
+#define MPPA_DL_LOG(level, fmt, ...)			\
+	if (mppa_dl_loglevel >= level)			\
+		fprintf (stderr, fmt, ##__VA_ARGS__);
+
 void mppa_dl_set_loglevel(int level);
 
 void mppa_dl_errno(int errno);
