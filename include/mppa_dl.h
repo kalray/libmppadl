@@ -22,7 +22,7 @@
 #include "mppa_dl_mem.h"
 #include "mppa_dl_load.h"
 #include "mppa_dl_sym.h"
-
+#include "mppa_dl_autotraces.h"
 
 /**
  * \brief Load a dynamic library.
