@@ -266,7 +266,7 @@ b.target("valid") do
 
 	b.valid(:cmd => "K1_TOOLCHAIN_DIR='#{toolroot}' PATH=#{install_prefix}/bin:#{toolroot}/bin:$PATH make #{make_defvar} all",
 		:name => "BUILD TESTS for #{os_flav} / #{multi_opts}")
-	b.valid(:cmd => "K1_TOOLCHAIN_DIR='#{toolroot}' PATH=#{install_prefix}/bin:#{toolroot}/bin:$PATH make #{make_defvar} all-tests",
+	b.valid(:cmd => "K1_TOOLCHAIN_DIR='#{toolroot}' PATH=#{install_prefix}/bin:#{toolroot}/bin:$PATH make #{make_defvar} #{valid_jobs} all-tests",
 		:name => "RUN TESTS for #{os_flav} / #{multi_opts}")
       end
     end
