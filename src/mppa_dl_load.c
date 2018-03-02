@@ -8,9 +8,7 @@
 
 void *mppa_dl_load_addr(mppa_dl_handle_t *hdl)
 {
-	if (mppa_dl_loglevel > 0) {
-		fprintf(stderr, "- mppa_dl_load_addr()\n");
-	}
+	MPPA_DL_LOG(1, "- mppa_dl_load_addr()\n");
 	return hdl->addr;
 }
 
@@ -18,9 +16,8 @@ void *mppa_dl_load_addr(mppa_dl_handle_t *hdl)
 int mppa_dl_init_handle(mppa_dl_handle_t *hdl, ElfK1_Dyn *dyn,
 			void *off, mppa_dl_handle_t *parent)
 {
-	if (mppa_dl_loglevel > 0) {
-		fprintf(stderr, "> mppa_dl_init_handle()\n");
-	}
+	MPPA_DL_LOG(1, "> mppa_dl_init_handle()\n");
+
 	size_t k = 0, relasz = 0, relaent = 0, pltrelsz = 0;
 	dyn = (ElfK1_Dyn *)((ElfK1_Addr)dyn + (ElfK1_Addr)off);
 
@@ -103,27 +100,23 @@ int mppa_dl_init_handle(mppa_dl_handle_t *hdl, ElfK1_Dyn *dyn,
 	else
 		return -1;
 
-	if (mppa_dl_loglevel > 0) {
-		fprintf(stderr, "< mppa_dl_init_handle()\n");
-	}
+	MPPA_DL_LOG(1, "< mppa_dl_init_handle()\n");
+
 	return 0;
 }
 
 
 int mppa_dl_apply_rela(mppa_dl_handle_t *hdl, ElfK1_Rela rel)
 {
-	if (mppa_dl_loglevel > 0) {
-		fprintf(stderr, "> mppa_dl_apply_rela()\n");
-	}
+	MPPA_DL_LOG(1, "> mppa_dl_apply_rela()\n");
+
 	ElfK1_Word tmp;
 	ElfK1_Sym sym = hdl->symtab[ELFK1_R_SYM(rel.r_info)];
 
-	if (mppa_dl_loglevel > 1) {
-		fprintf(stderr,	">> relocation at %lx, of type %d, "
-			"with symbol '%s', and addend->%lx\n",
-			rel.r_offset, ELFK1_R_TYPE(rel.r_info),
-			&hdl->strtab[sym.st_name], rel.r_addend);
-	}
+	MPPA_DL_LOG(2, ">> relocation at %lx, of type %d, "
+		    "with symbol '%s', and addend->%lx\n",
+		    rel.r_offset, ELFK1_R_TYPE(rel.r_info),
+		    &hdl->strtab[sym.st_name], rel.r_addend);
 
 	switch (ELFK1_R_TYPE(rel.r_info)) {
 	case R_K1_32:
@@ -147,9 +140,7 @@ int mppa_dl_apply_rela(mppa_dl_handle_t *hdl, ElfK1_Rela rel)
 		return -1;
 	}
 
-	if (mppa_dl_loglevel > 0) {
-		fprintf(stderr, "< mppa_dl_apply_rela()\n");
-	}
+	MPPA_DL_LOG(1, "< mppa_dl_apply_rela()\n");
 
 	return 0;
 }
