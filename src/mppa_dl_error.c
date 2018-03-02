@@ -11,6 +11,8 @@ int mppa_dl_autotraces = 0;
 
 void mppa_dl_set_loglevel(int level)
 {
+	MPPA_DL_LOG(2, "- set log level to %d\n", level);
+
 	mppa_dl_loglevel = level;
 }
 
@@ -29,6 +31,8 @@ int mppa_dl_errno_get_status()
 
 char *mppa_dl_error(void)
 {
+	MPPA_DL_LOG(1, "> mppa_dl_error()\n");
+
 	char *err_msg;
 
 	switch (mppa_dl_errno_status) {
@@ -61,6 +65,8 @@ char *mppa_dl_error(void)
 	}
 
 	mppa_dl_errno_status = E_NONE;
+
+	MPPA_DL_LOG(1, "< mppa_dl_error()\n");
 
 	return err_msg;
 }

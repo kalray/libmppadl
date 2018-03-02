@@ -6,8 +6,7 @@
 
 void *mppa_dl_sym_lookup2(mppa_dl_handle_t *hdl, const char *symbol)
 {
-	if (mppa_dl_loglevel > 0)
-		fprintf(stderr, "> mppa_dl_sym_lookup2()\n");
+	MPPA_DL_LOG(1, "> mppa_dl_sym_lookup2()\n");
 
 	ElfK1_Sym sym;
 	size_t bndx;
@@ -31,8 +30,7 @@ void *mppa_dl_sym_lookup2(mppa_dl_handle_t *hdl, const char *symbol)
 		symndx = hdl->chain[symndx];
 		if (symndx == 0) {
 			mppa_dl_errno(E_END_CHAIN);
-			if (mppa_dl_loglevel > 0)
-				fprintf(stderr, "< mppa_dl_sym_lookup2()\n");
+			MPPA_DL_LOG(1, "< mppa_dl_sym_lookup2()\n");
 			return NULL;
 		}
 		sym = hdl->symtab[symndx];
@@ -40,18 +38,14 @@ void *mppa_dl_sym_lookup2(mppa_dl_handle_t *hdl, const char *symbol)
 
 	/* ELF is a shared object file, so smy.value holds the symbol address */
 	if (sym.st_shndx != SHN_UNDEF && hdl->type == ET_DYN) {
-		if (mppa_dl_loglevel > 1) {
-			fprintf(stderr, ">> symbol found at offset 0x%lx\n",
-				sym.st_value);
-		}
-		if (mppa_dl_loglevel > 0)
-			fprintf(stderr, "< mppa_dl_sym_lookup2()\n");
+		MPPA_DL_LOG(2, ">> symbol found at offset 0x%lx\n",
+			    sym.st_value);
+		MPPA_DL_LOG(1, "< mppa_dl_sym_lookup2()\n");
 
 		return (ElfK1_Addr *)((ElfK1_Addr)hdl->addr + sym.st_value);
 	}
 
-	if (mppa_dl_loglevel > 0)
-		fprintf(stderr, "< mppa_dl_sym_lookup2()\n");
+	MPPA_DL_LOG(1, "< mppa_dl_sym_lookup2()\n");
 
 	mppa_dl_errno(E_NO_SYM);
 	return NULL;
@@ -60,8 +54,7 @@ void *mppa_dl_sym_lookup2(mppa_dl_handle_t *hdl, const char *symbol)
 
 void *mppa_dl_sym_lookup(mppa_dl_handle_t *hdl, const char* symbol, int local)
 {
-	if (mppa_dl_loglevel > 0)
-		fprintf(stderr, "> mppa_dl_sym_lookup()\n");
+	MPPA_DL_LOG(1, "> mppa_dl_sym_lookup()\n");
 
 	void *sym;
 	mppa_dl_handle_t *lookat;
@@ -78,10 +71,7 @@ void *mppa_dl_sym_lookup(mppa_dl_handle_t *hdl, const char* symbol, int local)
 			if (sym != NULL ||
 			    (sym == NULL &&
 			     mppa_dl_errno_get_status() == E_NONE)) {
-				if (mppa_dl_loglevel > 0)
-					fprintf(stderr,
-						"< mppa_dl_sym_lookup()\n");
-
+				MPPA_DL_LOG(1, "< mppa_dl_sym_lookup()\n");
 				return sym;
 			} else {
 				lookat = lookat->parent;
@@ -95,8 +85,7 @@ void *mppa_dl_sym_lookup(mppa_dl_handle_t *hdl, const char* symbol, int local)
 	    (sym == NULL && mppa_dl_errno_get_status() == E_NONE))
 		return sym;
 
-	if (mppa_dl_loglevel > 0)
-		fprintf(stderr, "< mppa_dl_sym_lookup()\n");
+	MPPA_DL_LOG(1, "< mppa_dl_sym_lookup()\n");
 
 	return NULL;
 }

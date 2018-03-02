@@ -32,6 +32,15 @@ int mppa_dl_autotraces;
 	if (mppa_dl_loglevel >= level)			\
 		fprintf (stderr, fmt, ##__VA_ARGS__);
 
+/**
+ * Set the verbosity level of the library. Four log levels are supported.
+ *   - level 0: logs are disabled.
+ *   - level 1: enable minimal log level, i.e., control flow.
+ *   - level 2: level 1 + more details about relocations.
+ *   - level 3: level 1 + level 2 + autotraces logs.
+ *
+ * The default log level is 0.
+ */
 void mppa_dl_set_loglevel(int level);
 
 void mppa_dl_errno(int errno);
