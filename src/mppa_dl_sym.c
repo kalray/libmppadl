@@ -69,12 +69,18 @@ void *mppa_dl_sym_lookup(mppa_dl_handle_t *hdl, const char* symbol, int local)
 
 		/* look in the tail of handle list */
 		while (lookat != NULL) {
-			sym = mppa_dl_sym_lookup2(lookat, symbol);
-			if (sym != NULL ||
-			    (sym == NULL &&
-			     mppa_dl_errno_get_status() == E_NONE)) {
-				MPPA_DL_LOG(1, "< mppa_dl_sym_lookup()\n");
-				return sym;
+			if (lookat->availability == MPPA_DL_GLOBAL) {
+				sym = mppa_dl_sym_lookup2(lookat, symbol);
+
+				if (sym != NULL || 
+				    (sym == NULL &&
+				     mppa_dl_errno_get_status() == E_NONE)) {
+					MPPA_DL_LOG(1,
+						    "< mppa_dl_sym_lookup()\n");
+					return sym;
+				} else {
+					lookat = lookat->parent;
+				}
 			} else {
 				lookat = lookat->parent;
 			}

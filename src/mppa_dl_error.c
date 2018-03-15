@@ -62,6 +62,9 @@ char *mppa_dl_error(void)
 	case E_INIT_HDL:
 		err_msg = "handle initialization failed";
 		break;
+	case E_WRONG_FLAG:
+		err_msg = "wrong flag for mppa_dl_load()";
+		break;
 	default:
 		err_msg = "unknown error";
 	}

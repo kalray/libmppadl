@@ -8,7 +8,7 @@ int
 moduleA_main(int val) {
 	mppa_dl_handle_t *sub_module;
 
-	sub_module = mppa_dl_load(module_B_mdo);
+	sub_module = mppa_dl_load(module_B_mdo, MPPA_DL_LOCAL);
 	if ( sub_module == NULL){
 		printf("[module A] Error loading submodule module_B from module_A\n");
 		return 0;

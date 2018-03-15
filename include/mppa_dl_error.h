@@ -18,7 +18,8 @@ enum MPPA_DL_ERRNO {
 	E_END_CHAIN,
 	E_SYM_OUT,
 	E_NO_SYM,
-	E_INIT_HDL
+	E_INIT_HDL,
+	E_WRONG_FLAG
 };
 
 int mppa_dl_loglevel;

@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
 
 	mppa_dl_handle_t *handle;
 
-	handle = mppa_dl_load(simple_printf_reloc_mdo);
+	handle = mppa_dl_load(simple_printf_reloc_mdo, MPPA_DL_LOCAL);
 	if (handle == NULL) {
 		fprintf(stderr, "mppa_dl_load failed\n");
 		status = -1;

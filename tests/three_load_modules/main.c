@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
 
 	int val = 123456;
 
-	handle_moduleA = mppa_dl_load(module_A_mdo);
+	handle_moduleA = mppa_dl_load(module_A_mdo, MPPA_DL_LOCAL);
 	if (handle_moduleA == NULL) {
 		fprintf(stderr, "mppa_dl_load failed\n");
 		status = -1;
