@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
 			printf ("Iteration %d\n", i);
 		}
 
-		handle = mppa_dl_load(create_destroy_mdo);
+		handle = mppa_dl_load(create_destroy_mdo, MPPA_DL_LOCAL);
 		if (handle == NULL) {
 			fprintf(stderr, "mppa_dl_load failed: %s\n", mppa_dl_error());
 			status = -1;

@@ -31,10 +31,13 @@
  * \a image and returns an opaque "handle" for the dynamic library.
  *
  * \param image Pointer to the start of the memory image to load.
+ * \param flag Specify if symbols defined by this image will be made available
+ * (MPPA_DL_GLOBAL), or won't be made available (MPPA_DL_LOCAL), for symbol
+ * resolution of subsequently loaded images.
  * \return The \a handle of the loaded image on success, or NULL in
  * case of error (see mppa_dl_error())
  */
-void *mppa_dl_load(const char *image);
+void *mppa_dl_load(const char *image, int flag);
 
 /**
  * \brief Get the memory address of a symbol.

@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
   mppa_dl_set_malloc(my_mppa_dl_malloc_func);
   mppa_dl_set_free(my_mppa_dl_free_func);
 
-  handle = mppa_dl_load(empty_module_mdo);
+  handle = mppa_dl_load(empty_module_mdo, MPPA_DL_LOCAL);
   if (handle == NULL) {
     fprintf(stderr, "mppa_dl_load failed: %s\n", mppa_dl_error());
     status = -1;

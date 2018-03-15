@@ -7,7 +7,7 @@
 mppa_dl_handle_t *head = NULL;
 
 
-void *mppa_dl_load(const char *image)
+void *mppa_dl_load(const char *image, int flag)
 {
 	MPPA_DL_LOG(1, "> mppa_dl_load()\n");
 
@@ -24,6 +24,11 @@ void *mppa_dl_load(const char *image)
 	/* Program header list */
 	ElfK1_Phdr *phdr = (ElfK1_Phdr *)(image + ehdr->e_phoff);
 
+	if (flag <= MPPA_DL_FLAG_MIN || flag >= MPPA_DL_FLAG_MAX) {
+		mppa_dl_errno(E_WRONG_FLAG);
+		return NULL;
+	}
+
 	/* handle list is empty and _DYNAMIC symbol has been declared by the
 	   main program: add an handle for it */
 	if (head == NULL && _DYNAMIC != 0) {
@@ -31,7 +36,8 @@ void *mppa_dl_load(const char *image)
 
 		head = (mppa_dl_handle_t *)
 			mppa_dl_malloc(sizeof(mppa_dl_handle_t));
-		if (mppa_dl_init_handle(head, _DYNAMIC, NULL, NULL) != 0) {
+		if (mppa_dl_init_handle(head, _DYNAMIC, NULL, NULL,
+					MPPA_DL_GLOBAL) != 0) {
 			mppa_dl_errno(E_INIT_HDL);
 			return NULL;
 		}
@@ -94,7 +100,7 @@ void *mppa_dl_load(const char *image)
 			if (mppa_dl_init_handle(
 				    hdl,
 				    (ElfK1_Dyn *)((ElfK1_Addr)shdr[i].sh_addr),
-				    addr, head) == 0) {
+				    addr, head, flag) == 0) {
 				head = hdl;
 			} else {
 				mppa_dl_errno(E_INIT_HDL);

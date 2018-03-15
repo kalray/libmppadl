@@ -12,7 +12,8 @@ void *mppa_dl_load_addr(mppa_dl_handle_t *hdl)
 
 
 int mppa_dl_init_handle(mppa_dl_handle_t *hdl, ElfK1_Dyn *dyn,
-			void *off, mppa_dl_handle_t *parent)
+			void *off, mppa_dl_handle_t *parent,
+			int availability)
 {
 	MPPA_DL_LOG(1, "> mppa_dl_init_handle()\n");
 
@@ -36,6 +37,7 @@ int mppa_dl_init_handle(mppa_dl_handle_t *hdl, ElfK1_Dyn *dyn,
 	hdl->symtab = 0;
 	hdl->parent = parent;
 	hdl->child = NULL;
+	hdl->availability = availability;
 
 	if (parent != NULL)
 		parent->child = hdl;

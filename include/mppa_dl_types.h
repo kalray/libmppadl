@@ -44,6 +44,21 @@ enum MPPA_DL_RELOCATIONS {
 	R_K1_RELATIVE = 32
 };
 
+/** One of the following two values must be included in the flags,
+ * (see mppa_dl_load).
+ *
+ * - MPPA_DL_GLOBAL: the symbols defined by this library will be made available
+ * for symbol resolution of subsequently loaded libraries.
+ * - MPPA_DL_LOCAL: the symbols defined in this library are not made available
+ * to resolve references in subsequently loaded libraries.
+ */
+enum MPPA_DL_LOAD_FLAGS {
+	MPPA_DL_FLAG_MIN,
+	MPPA_DL_GLOBAL,
+	MPPA_DL_LOCAL,
+	MPPA_DL_FLAG_MAX
+};
+
 typedef struct mppa_dl_handle {
 	ElfK1_Addr *addr;   /* ELF memory image address */
 	ElfK1_Half type;    /* ELF type (e_type from ElfK1_Ehdr) */
@@ -65,6 +80,8 @@ typedef struct mppa_dl_handle {
 	char       *strtab; /* address of the DT_STRTAB string table */
 	size_t     strsz;   /* size in bytes of the DT_STRTAB string table */
 	ElfK1_Sym  *symtab; /* address of the DT_SYMTAB symbol table */
+
+	int        availability; /* symbols availability */
 
 	/* mppa_dl_handle is a node of a doubly linked list */
 	struct mppa_dl_handle *parent;

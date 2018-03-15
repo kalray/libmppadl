@@ -12,13 +12,13 @@ int main(int argc, char **argv)
 	void *handle_moduleA, *handle_moduleB;
 	void *f_ptra, *f_ptrb;
 
-	handle_moduleA = mppa_dl_load(module_A_mdo);
+	handle_moduleA = mppa_dl_load(module_A_mdo, MPPA_DL_GLOBAL);
 	if (handle_moduleA == NULL) {
 		fprintf(stderr, "mppa_dl_load failed\n");
 		return -1;
 	}
 
-	handle_moduleB = mppa_dl_load(module_B_mdo);
+	handle_moduleB = mppa_dl_load(module_B_mdo, MPPA_DL_GLOBAL);
 	if (handle_moduleB == NULL) {
 		fprintf(stderr, "mppa_dl_load failed\n");
 		return -1;
