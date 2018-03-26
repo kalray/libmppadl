@@ -37,12 +37,13 @@ typedef Elf32_Phdr ElfK1_Phdr;
 
 extern __attribute__((weak)) ElfK1_Dyn _DYNAMIC[];
 
-enum MPPA_DL_RELOCATIONS {
-	R_K1_32 = 2,
-	R_K1_GLOB_DAT = 17,
-	R_K1_JMP_SLOT = 31,
-	R_K1_RELATIVE = 32
-};
+#if defined(__K1B__)
+#include "arch/k1b.h"
+#elif defined(__K1C__)
+#include "arch/k1c.h"
+#else
+#error "Unsupported architecture"
+#endif
 
 /** One of the following two values must be included in the flags,
  * (see mppa_dl_load).
