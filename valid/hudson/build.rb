@@ -118,9 +118,10 @@ repo = Git.new(mppadl_clone,workspace)
 clean   = CleanTarget.new("clean", repo, [])
 build   = ParallelTarget.new("build", repo, [], [])
 doc     = Target.new("doc", repo, [])
-valid   = ParallelTarget.new("valid", repo, [build], [])
-install = ParallelTarget.new("install", repo, [valid], [])
+install = ParallelTarget.new("install", repo, [build], [])
 package = Target.new("package", repo, [install], [])
+
+valid   = ParallelTarget.new("valid", repo, [], [])
 
 install.write_prefix()
 
@@ -257,7 +258,6 @@ b.target("valid") do
 	  "SPEC_LDFLAGS='#{multi_opts} -mos=#{os_flav}' " +
 	  "OS=#{os_flav} " +
 	  "DESTDIR='#{tests_build_dir}' " +
-	  "MPPADL_LIB_PATH=#{lib_build_dir}/lib/#{cluster_target} " +
 	  "CLUSTER_TYPE=#{cluster_type} " +
 	  "ARCH=#{arch} " +
 	  "MCORE=#{multi_arch} " +
