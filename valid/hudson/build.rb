@@ -6,8 +6,8 @@ include Metabuild
 
 options = Options.new({ "target"              => "k1",
 			"version"             => ["1-0", "Tools version."],
-			"march"               => ["k1b:k1bdp,k1bio", "List of mppa_architectures."],
-			"march_valid"         => ["k1b:k1bdp,k1bio", "List of mppa_architectures to validated on execution_platform."],
+			"march"               => ["k1c", "List of mppa_architectures."],
+			"march_valid"         => ["k1c", "List of mppa_architectures to validated on execution_platform."],
 			"processor"           => "processor",
 			"platform"            => ["elf,rtems,nodeos", "List of targeted platforms"],
 			"execution_platform"  => {
@@ -91,7 +91,7 @@ march_valid_hash = Hash[*options["march_valid"].split(/::/).map{|tmp_arch| tmp_a
 march_hash       = Hash[*options["march"].split(/::/).map{|tmp_arch| tmp_arch.split(/:/)}.flatten]
 
 raise "Multiple k1 architectures is not supported for now, update required!" if march_hash.keys.size != 1
-raise "Only k1b architecture supported for now, update required!" unless march_hash.has_key? "k1b"
+raise "Only k1c architecture supported for now, update required!" unless march_hash.has_key? "k1c"
 
 march = march_hash.keys[0]
 
@@ -192,17 +192,10 @@ b.target("build") do
 	  extra_flags = "-g"
 	end
 
-	if multi_arch.include? "io"
-	  cluster_target = "io"
-	else
-	  cluster_target = "cluster"
-	end
-
 	cflags = "-mos=#{os_flav} #{multi_opts} #{extra_flags}"
         local_env = make_env.merge(
             {
                 "O" => build_dir,
-                "CLUSTER_TARGET" => cluster_target,
                 "CFLAGS" => "\"#{cflags}\"",
             })
 
@@ -247,30 +240,13 @@ b.target("valid") do
 	    b.create_goto_dir! tests_build_dir
 
 	    b.cd! File.join(mppadl_path, "tests")
-	    case multi_arch
-	    when "k1dp"
-	        next # skip Andey
-	    when "k1io"
-	        next # skip Andey
-	    when "k1bio"
-	        cluster_type = "ioddr"
-	    when "k1bdp"
-	        cluster_type = "node"
-	    end
 	    flag_opt = " #{multi_opts}"
-
-	    if multi_arch.include? "io"
-	        cluster_target = "io"
-	    else
-	        cluster_target = "cluster"
-	    end
 
 	    make_defvar = "K1_TOOLCHAIN_DIR='#{toolroot}' " +
 	                  "SPEC_CFLAGS='#{multi_opts} -mos=#{os_flav}' " +
 	                  "SPEC_LDFLAGS='#{multi_opts} -mos=#{os_flav}' " +
 	                  "OS=#{os_flav} " +
 	                  "DESTDIR='#{tests_build_dir}' " +
-	                  "CLUSTER_TYPE=#{cluster_type} " +
 	                  "MCORE=#{multi_arch} " +
 	                  "EXECUTION_PLATFORM=#{execution_platform} " +
 	                  "BOARD=#{board}"
@@ -325,7 +301,6 @@ b.target("install") do
         install_make_env = make_env.merge(
             {
                 "O" => build_dir,
-                "CLUSTER_TARGET" => cluster_target,
                 "INSTALL_LIBDIR" => libdir,
                 "INSTALL_INCLUDEDIR" => includedir,
                 "DOC_PREFIX" => kalray_internal,
