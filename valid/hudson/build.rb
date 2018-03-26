@@ -93,6 +93,8 @@ march_hash       = Hash[*options["march"].split(/::/).map{|tmp_arch| tmp_arch.sp
 raise "Multiple k1 architectures is not supported for now, update required!" if march_hash.keys.size != 1
 raise "Only k1b architecture supported for now, update required!" unless march_hash.has_key? "k1b"
 
+march = march_hash.keys[0]
+
 cores_list = []
 march_hash.each{|k,v| cores_list.push v.split(/,/)}
 cores_list = cores_list.flatten
@@ -151,6 +153,13 @@ build_types     = []
 machine_types   = []
 
 
+make_env = {
+    "K1_TOOLCHAIN_DIR" => toolroot,
+    "PATH" => "#{install_prefix}/bin:#{toolroot}/bin:#{ENV.fetch("PATH","")}",
+    "DOXYGEN_DIR" => doxygen_dir,
+    "ARCH" => march,
+}
+
 b.target("doc") do
   b.logtitle = "Report for mppadl doc"
 
@@ -158,7 +167,8 @@ b.target("doc") do
 
   cd mppadl_path
 
-  b.run("K1_TOOLCHAIN_DIR='#{toolroot}' O=#{root_build_dir} DOXYGEN_DIR='#{doxygen_dir}' make doc")
+  b.run(:cmd => "make doc",
+        :env => make_env.merge({"O"=>root_build_dir}))
 end
 
 
@@ -189,9 +199,15 @@ b.target("build") do
 	end
 
 	cflags = "-mos=#{os_flav} #{multi_opts} #{extra_flags}"
+        local_env = make_env.merge(
+            {
+                "O" => build_dir,
+                "CLUSTER_TARGET" => cluster_target,
+                "CFLAGS" => "\"#{cflags}\"",
+            })
 
-	b.run("K1_TOOLCHAIN_DIR='#{toolroot}' O=#{build_dir} CLUSTER_TARGET=#{cluster_target} CFLAGS='#{cflags}' make")
-
+	b.run(:cmd => "make",
+              :env => local_env)
       end
     end
   end
@@ -206,15 +222,13 @@ end
 
 
 b.target("valid") do
-  b.logtitle = "Report for mppadl valid, arch = #{arch}"
+    b.logtitle = "Report for mppadl valid, arch = #{arch}"
 
-  case arch
-    when "k1"
-      if execution_platform == "sim" then
+    if execution_platform == "sim" then
 	valid_jobs= "-j #{jobs}"
-      else
+    else
 	valid_jobs="-j1"
-      end
+    end
 
     # skip fPIC and fno-exception as they make no sense in tests.
     skip_multilib = ["-fPIC", "-fno-exceptions"]
@@ -225,55 +239,53 @@ b.target("valid") do
     multilibs = get_multilibs(toolroot, os_flavors, cores_valid_list, skip_multilib)
 
     multilibs.each do |os_flav, os_multilibs|
-      os_multilibs.each do |multi_dir, multi_opts, multi_arch, multi_id|
+        os_multilibs.each do |multi_dir, multi_opts, multi_arch, multi_id|
 
-	lib_build_dir   = File.join(root_build_dir, build_type, os_flav, multi_arch, multi_id)
-	tests_build_dir = File.join(root_build_dir, "tests", build_type, os_flav, multi_arch, multi_id)
+	    lib_build_dir   = File.join(root_build_dir, build_type, os_flav, multi_arch, multi_id)
+	    tests_build_dir = File.join(root_build_dir, "tests", build_type, os_flav, multi_arch, multi_id)
 
-	b.create_goto_dir! tests_build_dir
+	    b.create_goto_dir! tests_build_dir
 
-	arch="k1b"
+	    b.cd! File.join(mppadl_path, "tests")
+	    case multi_arch
+	    when "k1dp"
+	        next # skip Andey
+	    when "k1io"
+	        next # skip Andey
+	    when "k1bio"
+	        cluster_type = "ioddr"
+	    when "k1bdp"
+	        cluster_type = "node"
+	    end
+	    flag_opt = " #{multi_opts}"
 
-	b.cd! File.join(mppadl_path, "tests")
-	case multi_arch
-	when "k1dp"
-	  next # skip Andey
-	when "k1io"
-	  next # skip Andey
-	when "k1bio"
-	  cluster_type = "ioddr"
-	when "k1bdp"
-	  cluster_type = "node"
-	end
-	flag_opt = " #{multi_opts}"
+	    if multi_arch.include? "io"
+	        cluster_target = "io"
+	    else
+	        cluster_target = "cluster"
+	    end
 
-	if multi_arch.include? "io"
-	  cluster_target = "io"
-	else
-	  cluster_target = "cluster"
-	end
+	    make_defvar = "K1_TOOLCHAIN_DIR='#{toolroot}' " +
+	                  "SPEC_CFLAGS='#{multi_opts} -mos=#{os_flav}' " +
+	                  "SPEC_LDFLAGS='#{multi_opts} -mos=#{os_flav}' " +
+	                  "OS=#{os_flav} " +
+	                  "DESTDIR='#{tests_build_dir}' " +
+	                  "CLUSTER_TYPE=#{cluster_type} " +
+	                  "MCORE=#{multi_arch} " +
+	                  "EXECUTION_PLATFORM=#{execution_platform} " +
+	                  "BOARD=#{board}"
 
-	make_defvar = "K1_TOOLCHAIN_DIR='#{toolroot}' " +
-	  "SPEC_CFLAGS='#{multi_opts} -mos=#{os_flav}' " +
-	  "SPEC_LDFLAGS='#{multi_opts} -mos=#{os_flav}' " +
-	  "OS=#{os_flav} " +
-	  "DESTDIR='#{tests_build_dir}' " +
-	  "CLUSTER_TYPE=#{cluster_type} " +
-	  "ARCH=#{arch} " +
-	  "MCORE=#{multi_arch} " +
-	  "EXECUTION_PLATFORM=#{execution_platform} " +
-	  "BOARD=#{board}"
-
-	b.valid(:cmd => "K1_TOOLCHAIN_DIR='#{toolroot}' PATH=#{install_prefix}/bin:#{toolroot}/bin:$PATH make #{make_defvar} all",
-		:name => "BUILD TESTS for #{os_flav} / #{multi_opts}")
-	b.valid(:cmd => "K1_TOOLCHAIN_DIR='#{toolroot}' PATH=#{install_prefix}/bin:#{toolroot}/bin:$PATH make #{make_defvar} #{valid_jobs} all-tests",
-		:name => "RUN TESTS for #{os_flav} / #{multi_opts}")
-      end
+	    b.valid(:cmd => "make #{make_defvar} all",
+		    :name => "BUILD TESTS for #{os_flav} / #{multi_opts}",
+                    :env => make_env)
+	    b.valid(:cmd => "make #{make_defvar} #{valid_jobs} all-tests",
+		    :name => "RUN TESTS for #{os_flav} / #{multi_opts}",
+                    :env => make_env)
+        end
     end
 
     b.valid(:cmd => "#{File.join(mppadl_path, 'tests', 'gen_test_report.sh')} #{File.join(root_build_dir, 'tests')}",
 	    :name => "Tests SUMMARY (read this in case of failure!)")
-  end
 end
 
 b.target("install") do
@@ -310,8 +322,17 @@ b.target("install") do
 	  cluster_target = "cluster"
 	end
 
-	b.run("K1_TOOLCHAIN_DIR='#{toolroot}' O=#{build_dir} CLUSTER_TARGET=#{cluster_target} " +
-	      "INSTALL_LIBDIR=#{libdir} INSTALL_INCLUDEDIR=#{includedir} DOC_PREFIX=#{kalray_internal} make install")
+        install_make_env = make_env.merge(
+            {
+                "O" => build_dir,
+                "CLUSTER_TARGET" => cluster_target,
+                "INSTALL_LIBDIR" => libdir,
+                "INSTALL_INCLUDEDIR" => includedir,
+                "DOC_PREFIX" => kalray_internal,
+            })
+
+	b.run(:cmd => "make install",
+              :env => install_make_env)
 
 	# Copy to toolroot
 	b.rsync(install_prefix,toolroot)
@@ -319,7 +340,12 @@ b.target("install") do
     end
   end
 
-  b.run("K1_TOOLCHAIN_DIR='#{toolroot}' O=#{root_build_dir} DOC_PREFIX=#{kalray_internal} make doc-install")
+  b.run(:cmd => "make doc-install",
+        :env => make_env.merge(
+            {
+                "O"=>root_build_dir,
+                "DOC_PREFIX" => kalray_internal,
+            }))
 end
 
 
