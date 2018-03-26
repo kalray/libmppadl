@@ -26,12 +26,8 @@ ifeq ($(ARCH),k1b)
 endif
 
 
-MAIN_LDFLAGS := -L $(MPPADL_LIB_PATH) $(SPEC_LDFLAGS) $(if $(findstring hypervisor,$(SPEC_LDFLAGS)),-lvbsp,) $(if $(findstring hypervisor,$(SPEC_LDFLAGS)),$(if $(findstring nodeos,$(SPEC_LDFLAGS)),,$(if $(findstring rtems,$(SPEC_LDFLAGS)),,-lutask)),) -Wl,-E -Wl,--dynamic-list-data -lmppadl -lsomppadl -lelf
+MAIN_LDFLAGS := $(SPEC_LDFLAGS) $(if $(findstring hypervisor,$(SPEC_LDFLAGS)),-lvbsp,) $(if $(findstring hypervisor,$(SPEC_LDFLAGS)),$(if $(findstring nodeos,$(SPEC_LDFLAGS)),,$(if $(findstring rtems,$(SPEC_LDFLAGS)),,-lutask)),) -Wl,-E -Wl,--dynamic-list-data -lmppadl -lsomppadl -lelf
 MAIN_CFLAGS := -I$(GENERATED) $(SPEC_CFLAGS) -g -O0
-
-ifeq ($(MPPADL_LIB_PATH),)
-$(error "Missing MPPADL_LIB_PATH")
-endif
 
 MPPADL_INCLUDE_PATH ?= $(abspath $(CURDIR)/../../include/)
 
