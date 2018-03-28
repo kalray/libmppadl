@@ -98,7 +98,10 @@ int mppa_dl_init_handle(mppa_dl_handle_t *hdl, ElfK1_Dyn *dyn,
 		hdl->relan = relasz / relaent;
 
 	if (hdl->pltrel == DT_RELA || hdl->pltrel == DT_NULL)
-		hdl->pltreln = pltrelsz / relaent;
+		if (pltrelsz == 0 || relaent == 0)
+			hdl->pltreln = 0;
+		else
+			hdl->pltreln = pltrelsz / relaent;
 	else
 		return -1;
 
