@@ -289,6 +289,7 @@ b.target("install") do
 	mkdir_p build_dir
 	mkdir_p libdir
 	mkdir_p includedir
+	mkdir_p "#{includedir}/arch"
 
 	cd mppadl_path
 

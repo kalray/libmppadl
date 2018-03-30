@@ -38,6 +38,7 @@ mv-so-from-bin-to-lib:
 install:
 	cp $(O)/lib/cluster/lib*mppadl.{a,so} $(INSTALL_LIBDIR)
 	cp include/*.h $(INSTALL_INCLUDEDIR)
+	cp include/arch/*.h $(INSTALL_INCLUDEDIR)/arch
 
 doc-install:
 	mkdir -p $(DOC_PREFIX)/share/doc/libmppadl
