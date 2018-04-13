@@ -7,10 +7,14 @@
 /**
  * Current autotraces support is inherited from the previous mppa_dl library.
  * This feature is required by autotraces testsuite, even if such tests are now
- * disabled (autotraces does not longer support dynamic tracing). Consequently,
+ * disabled (autotraces does no longer support dynamic tracing). Consequently,
  * the following autotraces support is only added for compatibilty purposes and
  * can't be tested.
  */
+
+#ifndef MPPADL_ENABLE_AUTOTRACE
+#error This file should not be included when autotrace support is disabled
+#endif
 
 #ifndef MPPA_DL_AUTOTRACES_H
 #define MPPA_DL_AUTOTRACES_H

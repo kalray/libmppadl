@@ -4,6 +4,8 @@
  * All rights reserved.
  */
 
+#ifdef MPPADL_ENABLE_AUTOTRACE
+
 #include "mppa_dl_autotraces.h"
 
 /**
@@ -43,3 +45,4 @@ int mppa_dl_get_dynamic_id(void *handle)
 
 	return -1;
 }
+#endif	/* MPPADL_ENABLE_AUTOTRACE */

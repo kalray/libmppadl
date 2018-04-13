@@ -24,7 +24,10 @@
 #include "mppa_dl_mem.h"
 #include "mppa_dl_load.h"
 #include "mppa_dl_sym.h"
+
+#ifdef MPPADL_ENABLE_AUTOTRACE
 #include "mppa_dl_autotraces.h"
+#endif
 
 /**
  * \brief Load a dynamic library.
