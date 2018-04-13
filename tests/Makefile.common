@@ -19,12 +19,10 @@ else
 K1_JTAG_RUNNER += --exec-file=Cluster0:
 endif
 
-K1_CLUSTER:=k1-cluster  --no-trap --mcluster=$(CLUSTER_TYPE)
+K1_CLUSTER_ARGS :=
+K1_CLUSTER := k1-cluster  --no-trap
 
-ifeq ($(ARCH),k1b)
- K1_CLUSTER += --march=bostan
-endif
-
+-include Makefile.arch.$(arch)
 
 MAIN_LDFLAGS := $(SPEC_LDFLAGS) $(if $(findstring hypervisor,$(SPEC_LDFLAGS)),-lvbsp,) $(if $(findstring hypervisor,$(SPEC_LDFLAGS)),$(if $(findstring nodeos,$(SPEC_LDFLAGS)),,$(if $(findstring rtems,$(SPEC_LDFLAGS)),,-lutask)),) -Wl,-E -Wl,--dynamic-list-data -lmppadl -lsomppadl -lelf
 MAIN_CFLAGS := -I$(GENERATED) $(SPEC_CFLAGS) -g -O0
@@ -62,7 +60,7 @@ ifneq (,$$(filter $(EXECUTION_PLATFORM)-$(BOARD),hw-developer hw-explorer))
 else ifeq ($(EXECUTION_PLATFORM)-$(BOARD),hw-emb01)
 	../run_test.sh "$(GENERATED)/test.log" "$(GENERATED)" golden "$$<" $(K1_REMOTE_RUNNER) --multibinary=$$< -- $(K1_JTAG_RUNNER)$$<
 else ifneq (,$$(filter $(EXECUTION_PLATFORM)-$(BOARD),sim-developer))
-	../run_test.sh "$(GENERATED)/test.log" "$(GENERATED)" golden "$$<" $(K1_CLUSTER) -- $$<
+	../run_test.sh "$(GENERATED)/test.log" "$(GENERATED)" golden "$$<" $(K1_CLUSTER) $(K1_CLUSTER_ARGS) -- $$<
 else
 	$$(info Skipping test for $(EXECUTION_PLATFORM) on board $(BOARD))
 	true
