@@ -38,7 +38,7 @@ void *mppa_dl_sym_lookup2(mppa_dl_handle_t *hdl, const char *symbol)
 		sym = hdl->symtab[symndx];
 	}
 
-	/* ELF is a shared object file, so smy.value holds the symbol address */
+	/* ELF is a shared object file, so sym.st_value holds the symbol address */
 	if (sym.st_shndx != SHN_UNDEF && hdl->type == ET_DYN) {
 		MPPA_DL_LOG(2, ">> symbol found at offset 0x%lx\n",
 			    sym.st_value);
@@ -87,7 +87,7 @@ void *mppa_dl_sym_lookup(mppa_dl_handle_t *hdl, const char* symbol, int local)
 		}
 	}
 
-	/* look in the head of the handle list (or local serach only) */
+	/* look in the head of the handle list (or local search only) */
 	sym = mppa_dl_sym_lookup2(hdl, symbol);
 	if (sym != NULL ||
 	    (sym == NULL && mppa_dl_errno_get_status() == E_NONE))
