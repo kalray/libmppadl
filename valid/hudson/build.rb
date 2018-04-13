@@ -189,7 +189,7 @@ b.target("build") do
 
 	extra_flags = ""
 	if build_type == "Debug" then
-	  extra_flags = "-g"
+	  extra_flags = "-g3 -O0"
 	end
 
 	cflags = "-mos=#{os_flav} #{multi_opts} #{extra_flags}"
