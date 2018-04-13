@@ -5,6 +5,7 @@
    See T5741 */
 
 enum MPPA_DL_RELOCATIONS {
+	R_K1_NONE = 0,
 	R_K1_32 = 2,
 	R_K1_GLOB_DAT = 18,
 	R_K1_JMP_SLOT = 24,
