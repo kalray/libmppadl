@@ -29,7 +29,7 @@ MAIN_CFLAGS := -I$(GENERATED) $(SPEC_CFLAGS) -g -O0
 
 MPPADL_INCLUDE_PATH ?= $(abspath $(CURDIR)/../../include/)
 
-k1-cflags := -I $(MPPADL_INCLUDE_PATH) -Wall -Werror $(SPEC_CFLAGS)
+k1-cflags := -I $(MPPADL_INCLUDE_PATH) -Wall -Werror $(SPEC_CFLAGS) -save-temps=obj
 k1-lflags := $(SPEC_LDFLAGS)
 
 

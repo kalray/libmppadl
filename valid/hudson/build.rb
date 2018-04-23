@@ -259,6 +259,10 @@ b.target("valid") do
                     :env => make_env)
         end
     end
+    b.valid(:cmd => "cd #{File.join(root_build_dir, 'tests')}; " +
+                    "#{File.join(mppadl_path, 'tests', 'build_summary.sh')}",
+	    :name => "BUILD SUMMARY OF RELOCS/PSEUDO_FUNC USED (should never fail)",
+            :env => make_env)
 
     b.valid(:cmd => "#{File.join(mppadl_path, 'tests', 'gen_test_report.sh')} #{File.join(root_build_dir, 'tests')}",
 	    :name => "Tests SUMMARY (read this in case of failure!)")
