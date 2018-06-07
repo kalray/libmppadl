@@ -55,15 +55,15 @@ define test_rule
 
 test: $$(BIN_DIR)/main
 
-ifneq (,$$(filter $(EXECUTION_PLATFORM)-$(BOARD),hw-developer hw-explorer))
+ifneq (,$$(filter $(EXECUTION_PLATFORM)-$(BOARD),hw-csp_generic hw-explorer))
 	../run_test.sh "$(GENERATED)/test.log" "$(GENERATED)" golden "$$<" $(K1_JTAG_RUNNER)$$<
 else ifeq ($(EXECUTION_PLATFORM)-$(BOARD),hw-emb01)
 	../run_test.sh "$(GENERATED)/test.log" "$(GENERATED)" golden "$$<" $(K1_REMOTE_RUNNER) --multibinary=$$< -- $(K1_JTAG_RUNNER)$$<
-else ifneq (,$$(filter $(EXECUTION_PLATFORM)-$(BOARD),sim-developer))
+else ifneq (,$$(filter $(EXECUTION_PLATFORM)-$(BOARD),sim-csp_generic))
 	../run_test.sh "$(GENERATED)/test.log" "$(GENERATED)" golden "$$<" $(K1_CLUSTER) $(K1_CLUSTER_ARGS) -- $$<
 else
-	$$(info Skipping test for $(EXECUTION_PLATFORM) on board $(BOARD))
-	true
+        $$(info Error, unknown board: $(EXECUTION_PLATFORM) on board $(BOARD))
+	false
 endif
 
 endef
