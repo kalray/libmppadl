@@ -9,7 +9,7 @@ mppa_dl_handle_t *head = NULL;
 
 void *mppa_dl_load(const char *image, int flag)
 {
-	MPPA_DL_LOG(1, "> mppa_dl_load()\n");
+	MPPA_DL_LOG(1, "> mppa_dl_load(%s, %d)\n", image, flag);
 
 	size_t i;
 	size_t memsz = 0, malign = 0;
@@ -66,9 +66,9 @@ void *mppa_dl_load(const char *image, int flag)
 				   _K1_MMU_PA_RWX_RWX);
 #endif
 
-	MPPA_DL_LOG(2, ">> allocate %d bytes of memory at 0x%lx, "
-		    "with alignement: %d\n",
-		    memsz, (ElfK1_Addr)addr, malign);
+	MPPA_DL_LOG(2, ">> allocate %ld bytes of memory at 0x%lx, "
+		    "with alignement: %ld\n",
+		    (long int)memsz, (ElfK1_Addr)addr, (long int)malign);
 
 	if (addr == NULL) {
 		mppa_dl_errno(E_MEM_ALIGN);
@@ -116,8 +116,8 @@ void *mppa_dl_load(const char *image, int flag)
 
 	/* process relocations */
 
-	MPPA_DL_LOG(2, ">> %d RELPLT relocations and %d RELA relocations\n",
-		    head->pltreln, head->relan);
+	MPPA_DL_LOG(2, ">> %ld RELPLT relocations and %ld RELA relocations\n",
+		    (long int)head->pltreln, (long int)head->relan);
 
 	for (i = 0; i < head->relan; i++) { /* DT_RELA relocations */
 		if (mppa_dl_apply_rela(head, head->rela[i]) != 0) {
@@ -163,7 +163,7 @@ void *mppa_dl_load(const char *image, int flag)
 	__k1_icache_invalidate();
 #endif
 
-	MPPA_DL_LOG(1, "< mppa_dl_load()\n");
+	MPPA_DL_LOG(1, "< mppa_dl_load(%s, %d)\n", image, flag);
 
 	return (void *)head;
 }
@@ -171,18 +171,20 @@ void *mppa_dl_load(const char *image, int flag)
 
 void *mppa_dl_sym(void *handle, const char* symbol)
 {
-	MPPA_DL_LOG(1, "> mppa_dl_sym()\n");
+	MPPA_DL_LOG(1, "> mppa_dl_sym(%p, %s)\n",
+		    handle, symbol);
 
 	void *sym = mppa_dl_sym_lookup((mppa_dl_handle_t *)handle, symbol, 1);
 
-	MPPA_DL_LOG(1, "< mppa_dl_sym()\n");
+	MPPA_DL_LOG(1, "< mppa_dl_sym(%p, %s)\n",
+		    handle, symbol);
 	return sym;
 }
 
 
 int mppa_dl_unload(void *handle)
 {
-	MPPA_DL_LOG(1, "> mppa_dl_unload()\n");
+	MPPA_DL_LOG(1, "> mppa_dl_unload(%p)\n", handle);
 
 	int ret = 0;
 	mppa_dl_handle_t *hdl = (mppa_dl_handle_t*)handle;
@@ -234,7 +236,7 @@ int mppa_dl_unload(void *handle)
 
 	mppa_dl_free(handle);
 
-	MPPA_DL_LOG(1, "< mppa_dl_unload()\n");
+	MPPA_DL_LOG(1, "< mppa_dl_unload(%p)\n", handle);
 
 	return ret;
 }

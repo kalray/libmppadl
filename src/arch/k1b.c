@@ -7,7 +7,8 @@
 
 int mppa_dl_apply_rela(mppa_dl_handle_t *hdl, ElfK1_Rela rel)
 {
-	MPPA_DL_LOG(1, "> mppa_dl_apply_rela()\n");
+	MPPA_DL_LOG(1, "> mppa_dl_apply_rela(%p, %ld)\n",
+		    hdl, rel);
 
 	ElfK1_Word tmp;
 	ElfK1_Sym sym = hdl->symtab[ELFK1_R_SYM(rel.r_info)];
@@ -39,7 +40,8 @@ int mppa_dl_apply_rela(mppa_dl_handle_t *hdl, ElfK1_Rela rel)
 		return -1;
 	}
 
-	MPPA_DL_LOG(1, "< mppa_dl_apply_rela()\n");
+	MPPA_DL_LOG(1, "< mppa_dl_apply_rela(%p, %ld)\n",
+		    hdl, rel);
 
 	return 0;
 }
