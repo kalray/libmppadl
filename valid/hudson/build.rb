@@ -45,10 +45,10 @@ def get_multilibs(toolroot, os_flavors, cores, banned_opts)
   end
 
   os_flavors.each do |os_flav|
-    `PATH=#{toolroot}/bin:$PATH k1-gcc -print-multi-lib -mos=#{os_flav}`.each_line do |multilib_line|
+    `PATH=#{toolroot}/bin:$PATH k1-#{os_flav}-gcc -print-multi-lib `.each_line do |multilib_line|
       multi_dir = multilib_line.split(';')[0].chomp()
       multi_opts = multilib_line.split(';')[1].gsub('@', ' -').chomp()
-      cmd = "echo __k1arch | PATH=#{toolroot}/bin:$PATH k1-gcc -mos=#{os_flav} #{multi_opts}  -  -E -P | grep -v define"
+      cmd = "echo __k1arch | PATH=#{toolroot}/bin:$PATH k1-#{os_flav}-gcc  #{multi_opts} -  -E -P | grep -v define"
       multi_arch = `#{cmd}`.chomp()
       multi_id = multilib_line.split(';')[1].gsub('=', '@').chomp()
       skip_opt = false
@@ -135,12 +135,12 @@ distrib_info      = b.get_distrib_info()
 b.logsession = arch
 
 if toolchain == "bare" then
-  os_flavors = ["bare"]
+  os_flavors = ["elf"]
 else
-  os_flavors = ["bare",	"nodeos","rtems"]
+  raise "Only bare supported #{toolchain}"
 end
 
-glob_banned_multilib = ["-m64"]
+glob_banned_multilib = [ ]
 
 autotraces_enable = true
 
@@ -192,7 +192,7 @@ b.target("build") do
 	  extra_flags = "-g3 -O0"
 	end
 
-	cflags = "-mos=#{os_flav} #{multi_opts} #{extra_flags}"
+	cflags = " #{multi_opts} #{extra_flags}"
         local_env = make_env.merge(
             {
                 "O" => build_dir,
@@ -244,8 +244,8 @@ b.target("valid") do
 	    flag_opt = " #{multi_opts}"
 
 	    make_defvar = "K1_TOOLCHAIN_DIR='#{toolroot}' " +
-	                  "SPEC_CFLAGS='#{multi_opts} -mos=#{os_flav}' " +
-	                  "SPEC_LDFLAGS='#{multi_opts} -mos=#{os_flav}' " +
+	                  "SPEC_CFLAGS='#{multi_opts} ' " +
+	                  "SPEC_LDFLAGS='#{multi_opts}' " +
 	                  "OS=#{os_flav} " +
 	                  "DESTDIR='#{tests_build_dir}' " +
 	                  "MCORE=#{multi_arch} " +
@@ -278,15 +278,11 @@ b.target("install") do
     multilibs.each do |os_flav, os_multilibs|
       os_multilibs.each do |multi_dir, multi_opts, multi_arch, multi_id|
 
-	if os_flav == "bare"
+	if os_flav == "elf"
 	  libdir     = File.join(install_prefix, "#{arch}-elf", "lib", multi_dir)
 	  includedir = File.join(install_prefix, "#{arch}-elf", "include")
-	elsif os_flav == "nodeos"
-	  libdir     = File.join(install_prefix, "#{arch}-nodeos", "lib", multi_dir)
-	  includedir = File.join(install_prefix, "#{arch}-nodeos", "include")
-	elsif os_flav == "rtems"
-	  libdir     = File.join(install_prefix, "#{arch}-rtems", "lib", multi_dir)
-	  includedir = File.join(install_prefix, "#{arch}-rtems", "include")
+	else
+            raise "unreachable: unsupported OS #{os_flav}"
 	end
 
 	build_dir = File.join(root_build_dir, build_type, os_flav, multi_arch, multi_id)
