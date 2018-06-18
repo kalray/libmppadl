@@ -8,7 +8,8 @@
 
 void *mppa_dl_sym_lookup2(mppa_dl_handle_t *hdl, const char *symbol)
 {
-	MPPA_DL_LOG(1, "> mppa_dl_sym_lookup2()\n");
+	MPPA_DL_LOG(1, "> mppa_dl_sym_lookup2(%p, %s)\n",
+		    hdl, symbol);
 
 	ElfK1_Sym sym;
 	size_t bndx;
@@ -32,7 +33,8 @@ void *mppa_dl_sym_lookup2(mppa_dl_handle_t *hdl, const char *symbol)
 		symndx = hdl->chain[symndx];
 		if (symndx == 0) {
 			mppa_dl_errno(E_END_CHAIN);
-			MPPA_DL_LOG(1, "< mppa_dl_sym_lookup2()\n");
+			MPPA_DL_LOG(1, "< mppa_dl_sym_lookup2(%p, %s) -> NULL\n",
+				    hdl, symbol);
 			return NULL;
 		}
 		sym = hdl->symtab[symndx];
@@ -42,12 +44,15 @@ void *mppa_dl_sym_lookup2(mppa_dl_handle_t *hdl, const char *symbol)
 	if (sym.st_shndx != SHN_UNDEF && hdl->type == ET_DYN) {
 		MPPA_DL_LOG(2, ">> symbol found at offset 0x%lx\n",
 			    sym.st_value);
-		MPPA_DL_LOG(1, "< mppa_dl_sym_lookup2()\n");
+		ElfK1_Addr ret = ((ElfK1_Addr)hdl->addr + sym.st_value);
+		MPPA_DL_LOG(1, "< mppa_dl_sym_lookup2(%p, %s) -> %lx\n",
+			    hdl, symbol, (long)ret);
 
-		return (ElfK1_Addr *)((ElfK1_Addr)hdl->addr + sym.st_value);
+		return (void*)ret;
 	}
 
-	MPPA_DL_LOG(1, "< mppa_dl_sym_lookup2()\n");
+	MPPA_DL_LOG(1, "< mppa_dl_sym_lookup2(%p, %s) -> NO_SYM\n",
+		    hdl, symbol);
 
 	mppa_dl_errno(E_NO_SYM);
 	return NULL;
@@ -56,7 +61,8 @@ void *mppa_dl_sym_lookup2(mppa_dl_handle_t *hdl, const char *symbol)
 
 void *mppa_dl_sym_lookup(mppa_dl_handle_t *hdl, const char* symbol, int local)
 {
-	MPPA_DL_LOG(1, "> mppa_dl_sym_lookup()\n");
+	MPPA_DL_LOG(1, "> mppa_dl_sym_lookup(%p, %s, local=%d)\n",
+		    hdl, symbol, local);
 
 	void *sym;
 	mppa_dl_handle_t *lookat;
@@ -93,7 +99,8 @@ void *mppa_dl_sym_lookup(mppa_dl_handle_t *hdl, const char* symbol, int local)
 	    (sym == NULL && mppa_dl_errno_get_status() == E_NONE))
 		return sym;
 
-	MPPA_DL_LOG(1, "< mppa_dl_sym_lookup()\n");
+	MPPA_DL_LOG(1, "< mppa_dl_sym_lookup(%p, %s, local=%d)\n",
+		    hdl, symbol, local);
 
 	return NULL;
 }

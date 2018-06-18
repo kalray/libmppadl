@@ -17,7 +17,8 @@ int mppa_dl_init_handle(mppa_dl_handle_t *hdl, ElfK1_Dyn *dyn,
 			void *off, mppa_dl_handle_t *parent,
 			int availability)
 {
-	MPPA_DL_LOG(1, "> mppa_dl_init_handle()\n");
+	MPPA_DL_LOG(1, "> mppa_dl_init_handle(%p, %p, %p, %p, %d)\n",
+		    hdl, dyn, off, parent, availability);
 
 	size_t k = 0, relasz = 0, relaent = 0, pltrelsz = 0;
 	dyn = (ElfK1_Dyn *)((ElfK1_Addr)dyn + (ElfK1_Addr)off);
@@ -105,7 +106,8 @@ int mppa_dl_init_handle(mppa_dl_handle_t *hdl, ElfK1_Dyn *dyn,
 	else
 		return -1;
 
-	MPPA_DL_LOG(1, "< mppa_dl_init_handle()\n");
+	MPPA_DL_LOG(1, "< mppa_dl_init_handle(%p, %p, %p, %p, %d)\n",
+		    hdl, dyn, off, parent, availability);
 
 	return 0;
 }
