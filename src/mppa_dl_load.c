@@ -45,7 +45,7 @@ int mppa_dl_init_handle(mppa_dl_handle_t *hdl, ElfK1_Dyn *dyn,
 	while (dyn[k].d_tag != DT_NULL) {
 		switch (dyn[k].d_tag) {
 		case DT_HASH:
-			hdl->hash = (ElfK1_Addr *)
+			hdl->hash = (ElfK1_Word *)
 					(dyn[k].d_un.d_ptr + (ElfK1_Addr)off);
 			break;
 		case DT_STRTAB:

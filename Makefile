@@ -17,11 +17,12 @@ use-module := strict-flags
 
 mppadl-srcs := $(MPPADL_SRCS)
 mppadl-cflags := -O2 -Iinclude $(CFLAGS)
+mppadl-lflags += $(LDFLAGS)
 mppadl-name := mppadl
 
 somppadl-srcs := src/empty.c
 somppadl-cflags := -O2 -fPIC -shared $(CFLAGS)
-somppadl-lflags := -shared -nostdlib -nostartfiles
+somppadl-lflags := -shared -nostdlib -nostartfiles $(LDFLAGS)
 somppadl-name := libsomppadl.so
 
 cluster-lib := mppadl
