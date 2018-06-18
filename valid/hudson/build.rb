@@ -197,6 +197,7 @@ b.target("build") do
             {
                 "O" => build_dir,
                 "CFLAGS" => "\"#{cflags}\"",
+                "LDFLAGS" => "\"#{cflags}\"",
             })
 
 	b.run(:cmd => "make",

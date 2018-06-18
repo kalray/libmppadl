@@ -9,9 +9,10 @@
 
 #define MAX(a,b) (((a)>(b))?(a):(b))
 
-#ifdef MPPA_DL_K1_64
+#ifdef __K1_64__
 typedef Elf64_Dyn  ElfK1_Dyn;
 typedef Elf64_Word ElfK1_Word;
+typedef Elf64_Lword ElfK1_Lword;
 typedef Elf64_Rela ElfK1_Rela;
 typedef Elf64_Sym  ElfK1_Sym;
 typedef Elf64_Addr ElfK1_Addr;
@@ -25,6 +26,7 @@ typedef Elf64_Phdr ElfK1_Phdr;
 #else
 typedef Elf32_Dyn  ElfK1_Dyn;
 typedef Elf32_Word ElfK1_Word;
+typedef Elf32_Lword ElfK1_Lword;
 typedef Elf32_Rela ElfK1_Rela;
 typedef Elf32_Sym  ElfK1_Sym;
 typedef Elf32_Addr ElfK1_Addr;
@@ -64,7 +66,7 @@ enum MPPA_DL_LOAD_FLAGS {
 };
 
 typedef struct mppa_dl_handle {
-	ElfK1_Addr *addr;   /* ELF memory image address */
+	void       *addr;   /* ELF memory image address */
 	ElfK1_Half type;    /* ELF type (e_type from ElfK1_Ehdr) */
 
 	ElfK1_Word *hash;   /* Symbol Hash Table address */
