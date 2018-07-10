@@ -137,7 +137,7 @@ b.logsession = arch
 if toolchain == "bare" then
   os_flavors = ["elf"]
 else
-  raise "Only bare supported #{toolchain}"
+  raise "Building for #{toolchain} toolchain not possible, only bare supported"
 end
 
 glob_banned_multilib = [ ]
