@@ -8,7 +8,6 @@ options = Options.new({ "target"              => "k1",
 			"version"             => ["1-0", "Tools version."],
 			"march"               => ["k1c", "List of mppa_architectures."],
 			"march_valid"         => ["k1c", "List of mppa_architectures to validated on execution_platform."],
-			"processor"           => "processor",
 			"platform"            => ["elf,rtems,nodeos", "List of targeted platforms"],
 			"execution_platform"  => {
 			  "type"     => "keywords",
