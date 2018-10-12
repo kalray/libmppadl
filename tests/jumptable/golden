@@ -1,0 +1,12 @@
+First call
+Found main_dl_jumptable in jumptable module at VARIABLE_VALUE_REMOVED_FROM_TEST_RESULT
+Module load address is VARIABLE_VALUE_REMOVED_FROM_TEST_RESULT
+Returned status: SUCCESS
+Second call
+Third call
+first case 50 1/2
+first case 50 2/2
+second case 54 1/2
+second case 54 2/2
+third case 58 1/2
+third case 58 2/2

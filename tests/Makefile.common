@@ -65,5 +65,5 @@ else
         $$(info Error, unknown board: $(EXECUTION_PLATFORM) on board $(BOARD))
 	false
 endif
-
+	if [[ -x ./test.sh ]]; then ./test.sh $$<; fi
 endef
