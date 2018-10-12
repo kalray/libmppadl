@@ -2,6 +2,7 @@ TESTS_NAMES =				\
 	empty_module			\
 	empty_module_unload		\
 	create_destroy_loop		\
+	jumptable			\
 	plt_test			\
 	char_s				\
 	three_load_modules		\
