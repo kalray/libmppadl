@@ -134,7 +134,7 @@ distrib_info      = b.get_distrib_info()
 b.logsession = arch
 
 if toolchain == "bare" then
-  os_flavors = ["elf"]
+  os_flavors = ["mbr"]
 else
   raise "Building for #{toolchain} toolchain not possible, only bare supported"
 end
@@ -277,9 +277,9 @@ b.target("install") do
     multilibs.each do |os_flav, os_multilibs|
       os_multilibs.each do |multi_dir, multi_opts, multi_arch, multi_id|
 
-	if os_flav == "elf"
-	  libdir     = File.join(install_prefix, "#{arch}-elf", "lib", multi_dir)
-	  includedir = File.join(install_prefix, "#{arch}-elf", "include")
+	if os_flav == "mbr"
+	  libdir     = File.join(install_prefix, "#{arch}-mbr", "lib", multi_dir)
+	  includedir = File.join(install_prefix, "#{arch}-mbr", "include")
 	else
             raise "unreachable: unsupported OS #{os_flav}"
 	end
