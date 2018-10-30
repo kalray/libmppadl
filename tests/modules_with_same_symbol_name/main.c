@@ -1,4 +1,3 @@
-#include <mppa/osconfig.h>
 #include <stdio.h>
 #include "mppa_dl.h"
 
