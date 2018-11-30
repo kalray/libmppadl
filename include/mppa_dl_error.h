@@ -41,6 +41,7 @@ int mppa_dl_autotraces;
  *   - level 3: level 1 + level 2 + autotraces logs.
  *
  * The default log level is 0.
+ * @param level Debug level.
  */
 void mppa_dl_set_loglevel(int level);
 
