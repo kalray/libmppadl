@@ -7,8 +7,6 @@
 int mppa_dl_loglevel = 0;
 int mppa_dl_errno_status = E_NONE;
 
-int mppa_dl_autotraces = 0;
-
 void mppa_dl_set_loglevel(int level)
 {
 	MPPA_DL_LOG(2, "- set log level to %d\n", level);
