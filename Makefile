@@ -7,8 +7,7 @@ MPPADL_SRCS = 				\
 	src/mppa_dl_load.c 		\
 	src/mppa_dl_sym.c 		\
 	src/mppa_dl_error.c 		\
-	src/mppa_dl_mem.c		\
-	src/mppa_dl_autotraces.c
+	src/mppa_dl_mem.c
 
 ## Use target dependent implementation
 MPPADL_SRCS += src/arch/$(ARCH).c

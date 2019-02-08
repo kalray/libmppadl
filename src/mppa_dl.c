@@ -140,23 +140,6 @@ void *mppa_dl_load(const char *image, int flag)
 		}
 	}
 
-#ifdef MPPADL_ENABLE_AUTOTRACE
-	/* emit traces to get load's address for proper instrumentation
-	   of dynamic module */
-	if (mppa_dl_autotraces) {
-		int dynamic_id = mppa_dl_get_dynamic_id(head);
-		if (dynamic_id == -1) {
-			MPPA_DL_LOG(3, ">> dynamic_id not found (address %p)\n",
-				    head->addr);
-		} else {
-			mppa_tracepoint(autotraces, loadTrace,
-					"Load", dynamic_id, head->addr);
-		}
-		MPPA_DL_LOG(3, ">> load module %d at address %p (autotraces)\n",
-			    dynamic_id, head->addr);
-	}
-#endif
-
 #if 0
 	__builtin_k1_wpurge();
 	__builtin_k1_fence();
@@ -188,24 +171,6 @@ int mppa_dl_unload(void *handle)
 
 	int ret = 0;
 	mppa_dl_handle_t *hdl = (mppa_dl_handle_t*)handle;
-
-#ifdef MPPADL_ENABLE_AUTOTRACE
-	/* emit traces to know which module has been unload for proper
-	   instrumentation of dynamic module */
-	if (mppa_dl_autotraces) {
-		int dynamic_id = mppa_dl_get_dynamic_id(hdl);
-		if (dynamic_id == -1) {
-			MPPA_DL_LOG(3, ">> dynamic_id not found (address %p)\n",
-				    hdl->addr);
-		} else {
-			mppa_tracepoint(autotraces, loadTrace,
-					"Unload", dynamic_id, hdl->addr);
-		}
-		MPPA_DL_LOG(3,
-			    ">> unload module %d at address %p (autotraces)\n",
-			    dynamic_id, hdl->addr);
-	}
-#endif
 
 	mppa_dl_free(hdl->addr); /* free allocated ELF image memory */
 

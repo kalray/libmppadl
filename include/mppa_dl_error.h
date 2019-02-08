@@ -27,8 +27,6 @@ enum MPPA_DL_ERRNO {
 int mppa_dl_loglevel;
 int mppa_dl_errno_status;
 
-int mppa_dl_autotraces;
-
 #define MPPA_DL_LOG(level, fmt, ...)			\
 	if (mppa_dl_loglevel >= level)			\
 		fprintf (stderr, fmt, ##__VA_ARGS__);
@@ -38,7 +36,6 @@ int mppa_dl_autotraces;
  *   - level 0: logs are disabled.
  *   - level 1: enable minimal log level, i.e., control flow.
  *   - level 2: level 1 + more details about relocations.
- *   - level 3: level 1 + level 2 + autotraces logs.
  *
  * The default log level is 0.
  * @param level Debug level.
