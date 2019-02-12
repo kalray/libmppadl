@@ -140,11 +140,8 @@ void *mppa_dl_load(const char *image, int flag)
 		}
 	}
 
-#if 0
-	__builtin_k1_wpurge();
 	__builtin_k1_fence();
-	__k1_icache_invalidate();
-#endif
+	__builtin_k1_iinval();
 
 	MPPA_DL_LOG(1, "< mppa_dl_load(%s, %d)\n", image, flag);
 
