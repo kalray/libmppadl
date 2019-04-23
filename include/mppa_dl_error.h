@@ -24,27 +24,16 @@ enum MPPA_DL_ERRNO {
 	E_WRONG_FLAG
 };
 
-int mppa_dl_loglevel;
-int mppa_dl_errno_status;
-
 #define MPPA_DL_LOG(level, fmt, ...)			\
-	if (mppa_dl_loglevel >= level)			\
-		fprintf (stderr, fmt, ##__VA_ARGS__);
+  if (mppa_dl_get_loglevel() >= level)			\
+    fprintf (stderr, fmt, ##__VA_ARGS__);
 
-/**
- * Set the verbosity level of the library. Four log levels are supported.
- *   - level 0: logs are disabled.
- *   - level 1: enable minimal log level, i.e., control flow.
- *   - level 2: level 1 + more details about relocations.
- *
- * The default log level is 0.
- * @param level Debug level.
- */
 void mppa_dl_set_loglevel(int level);
+int mppa_dl_get_loglevel(void);
 
 void mppa_dl_errno(int errno);
-int mppa_dl_errno_get_status();
+int mppa_dl_errno_get_status(void);
 
-extern char *mppa_dl_error(void);
+char *mppa_dl_error(void);
 
 #endif

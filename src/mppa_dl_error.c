@@ -15,13 +15,19 @@ void mppa_dl_set_loglevel(int level)
 }
 
 
+int mppa_dl_get_loglevel(void)
+{
+	return mppa_dl_loglevel;
+}
+
+
 void mppa_dl_errno(int errno)
 {
 	mppa_dl_errno_status = errno;
 }
 
 
-int mppa_dl_errno_get_status()
+int mppa_dl_errno_get_status(void)
 {
 	return mppa_dl_errno_status;
 }

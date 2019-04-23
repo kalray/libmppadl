@@ -64,6 +64,17 @@ void *mppa_dl_sym(void *handle, const char* symbol);
 int mppa_dl_unload(void *handle);
 
 /**
+ * \brief Set the verbosity level of the library. Three log levels are supported.
+ *   - level 0: logs are disabled.
+ *   - level 1: enable minimal log level, i.e., control flow.
+ *   - level 2: level 1 + more details about relocations.
+ * The default log level is 0.
+ *
+ * \param level Debug verbosity level of the library.
+ */
+extern void mppa_dl_set_loglevel(int level);
+
+/**
  * \brief Translate errors to human readable strings.
  *
  * The function mppa_dl_error() returns a human readable string describing the
@@ -73,6 +84,14 @@ int mppa_dl_unload(void *handle);
  * \return A string only if an error has occurred since initialization or the
  * last call of mppa_dl_error(), and NULL otherwise
  */
-char *mppa_dl_error(void);
+extern char *mppa_dl_error(void);
+
+/**
+ * \brief Overload memalign, malloc, or free functions used by the
+ * library.
+ */
+extern void mppa_dl_set_memalign(mppa_dl_memalign_t);
+extern void mppa_dl_set_malloc(mppa_dl_malloc_t);
+extern void mppa_dl_set_free(mppa_dl_free_t);
 
 #endif
