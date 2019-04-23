@@ -7,10 +7,10 @@
 #ifdef __rtems__
 void *(*mppa_dl_memalign)(size_t, size_t) = mppa_dl_rtems_memalign_wrapper;
 #else
-void *(*mppa_dl_memalign)(size_t, size_t) = memalign;
+mppa_dl_memalign_t mppa_dl_memalign = memalign;
 #endif
-void *(*mppa_dl_malloc)(size_t) = malloc;
-void (*mppa_dl_free)(void *) = free;
+mppa_dl_malloc_t mppa_dl_malloc = malloc;
+mppa_dl_free_t mppa_dl_free = free;
 
 void mppa_dl_set_memalign(void *(*ptr)(size_t, size_t))
 {
