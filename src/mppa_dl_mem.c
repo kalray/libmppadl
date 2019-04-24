@@ -4,11 +4,7 @@
 
 #include "mppa_dl_mem.h"
 
-#ifdef __rtems__
-void *(*mppa_dl_memalign)(size_t, size_t) = mppa_dl_rtems_memalign_wrapper;
-#else
 mppa_dl_memalign_t mppa_dl_memalign = memalign;
-#endif
 mppa_dl_malloc_t mppa_dl_malloc = malloc;
 mppa_dl_free_t mppa_dl_free = free;
 
@@ -38,21 +34,3 @@ void mppa_dl_set_free(void (*ptr)(void *))
 
 	MPPA_DL_LOG(1, "< mppa_dl_set_free()\n");
 }
-
-#ifdef __rtems__
-void * mppa_dl_rtems_memalign_wrapper(size_t boundary, size_t size)
-{
-	MPPA_DL_LOG(1, "> mppa_dl_rtems_memalign_wrapper()\n");
-
-	void *b;
-	int r = posix_memalign(&b, boundary, size);
-
-	MPPA_DL_LOG(1, "< mppa_dl_rtems_memalign_wrapper()\n");
-
-	if (r != 0) {
-		return NULL;
-	} else {
-		return b;
-	}
-}
-#endif

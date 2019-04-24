@@ -13,18 +13,12 @@ GENERATED:=$(abspath $(DESTDIR)/generated)
 K1_JTAG_RUNNER:=k1-jtag-runner
 K1_REMOTE_RUNNER:= k1-remote-runner --nohost_exec
 
-ifeq ($(CLUSTER_TYPE), ioddr)
-K1_JTAG_RUNNER += --exec-file=IODDR0:
-else
-K1_JTAG_RUNNER += --exec-file=Cluster0:
-endif
-
 K1_CLUSTER_ARGS :=
 K1_CLUSTER := k1-cluster  --no-trap
 
 -include Makefile.arch.$(arch)
 
-MAIN_LDFLAGS := $(SPEC_LDFLAGS) $(if $(findstring hypervisor,$(SPEC_LDFLAGS)),-lvbsp,) $(if $(findstring hypervisor,$(SPEC_LDFLAGS)),$(if $(findstring nodeos,$(SPEC_LDFLAGS)),,$(if $(findstring rtems,$(SPEC_LDFLAGS)),,-lutask)),) -Wl,-E -Wl,--dynamic-list-data -lmppadl -lsomppadl -lelf
+MAIN_LDFLAGS := $(SPEC_LDFLAGS) -Wl,-E -Wl,--dynamic-list-data -lmppadl -lsomppadl -lelf
 MAIN_CFLAGS := -I$(GENERATED) $(SPEC_CFLAGS) -g -O0
 
 MPPADL_INCLUDE_PATH ?= $(abspath $(CURDIR)/../../include/)
