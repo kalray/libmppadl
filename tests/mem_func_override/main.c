@@ -10,23 +10,10 @@ static int memalign_called = 0;
 static int malloc_called = 0;
 static int free_called = 0;
 
-#ifdef __rtems__
-static void* my_mppa_dl_memalign_func (size_t boundary, size_t size){
-	void *b;
-	memalign_called++;
-	int r = posix_memalign(&b, boundary, size);
-	if (r != 0) {
-		return NULL;
-	} else {
-		return b;
-	}
-}
-#else
 static void* my_mppa_dl_memalign_func (size_t boundary, size_t size){
   memalign_called++;
   return memalign(boundary, size);
 }
-#endif /* __rtems__ */
 
 static void* my_mppa_dl_malloc_func (size_t size){
   malloc_called++;
