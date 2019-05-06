@@ -10,11 +10,11 @@ arch := $(ARCH)
 BIN2H:=$(abspath ../bin2h_v2.py)
 GENERATED:=$(abspath $(DESTDIR)/generated)
 
-K1_JTAG_RUNNER:=k1-jtag-runner
-K1_REMOTE_RUNNER:= k1-remote-runner --nohost_exec
+K1_JTAG_RUNNER := k1-jtag-runner
+K1_JTAG_RUNNER_ARGS := --timeout=600
 
-K1_CLUSTER_ARGS :=
-K1_CLUSTER := k1-cluster  --no-trap
+K1_MPPA := k1-mppa
+K1_MPPA_ARGS := --no-trap
 
 -include Makefile.arch.$(arch)
 
@@ -49,12 +49,10 @@ define test_rule
 
 test: $$(BIN_DIR)/main
 
-ifneq (,$$(filter $(EXECUTION_PLATFORM)-$(BOARD),hw-csp_generic hw-explorer))
-	../run_test.sh "$(GENERATED)/test.log" "$(GENERATED)" golden "$$<" $(K1_JTAG_RUNNER)$$<
-else ifeq ($(EXECUTION_PLATFORM)-$(BOARD),hw-emb01)
-	../run_test.sh "$(GENERATED)/test.log" "$(GENERATED)" golden "$$<" $(K1_REMOTE_RUNNER) --multibinary=$$< -- $(K1_JTAG_RUNNER)$$<
+ifneq (,$$(filter $(EXECUTION_PLATFORM)-$(BOARD),hw-csp_generic))
+	../run_test.sh "$(GENERATED)/test.log" "$(GENERATED)" golden "$$<" $(K1_JTAG_RUNNER) $(K1_JTAG_RUNNER_ARGS) --exec-file=Cluster0:$$<
 else ifneq (,$$(filter $(EXECUTION_PLATFORM)-$(BOARD),sim-csp_generic))
-	../run_test.sh "$(GENERATED)/test.log" "$(GENERATED)" golden "$$<" $(K1_CLUSTER) $(K1_CLUSTER_ARGS) -- $$<
+	../run_test.sh "$(GENERATED)/test.log" "$(GENERATED)" golden "$$<" $(K1_MPPA) $(K1_MPPA_ARGS) -- $$<
 else
         $$(info Error, unknown board: $(EXECUTION_PLATFORM) on board $(BOARD))
 	false
