@@ -1,10 +1,11 @@
 DESTDIR := build/doc/latex/
 BUILDTYPE := Release
+K1REQ := $(abspath ../kEnv/k1tools/usr/local/k1Req/)
 
 DOXYGEN := $(DOXYGEN_DIR)/bin/doxygen
 
-KALRAY_LATEX_PATH := $(abspath ../kEnv/k1tools/usr/local/k1Req/kalray_internal/share/kalray-latex)
-RUBBER ?= $(abspath ../kEnv/k1tools/usr/local/k1Req/kalray_internal/bin/rubber)
+KALRAY_LATEX_PATH := $(K1REQ)/kalray_internal/share/kalray-latex
+RUBBER ?= $(K1REQ)/kalray_internal/bin/rubber
 
 MY_TARGETS = libmppadl.pdf
 
