@@ -143,6 +143,8 @@ void *mppa_dl_load(const char *image, int flag)
 	__builtin_k1_fence();
 	__builtin_k1_iinval();
 
+	mppa_dl_debug_update(head);
+
 	MPPA_DL_LOG(1, "< mppa_dl_load(%s, %d)\n", image, flag);
 
 	return (void *)head;
@@ -196,7 +198,12 @@ int mppa_dl_unload(void *handle)
 		}
 	}
 
+	if (hdl->name)
+		mppa_dl_free(hdl->name);
+
 	mppa_dl_free(handle);
+
+	mppa_dl_debug_update(head);
 
 	MPPA_DL_LOG(1, "< mppa_dl_unload(%p)\n", handle);
 

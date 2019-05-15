@@ -3,6 +3,7 @@
  */
 
 #include "mppa_dl_load.h"
+#include "mppa_dl_mem.h"
 
 void *mppa_dl_load_addr(mppa_dl_handle_t *hdl)
 {
@@ -18,7 +19,7 @@ int mppa_dl_init_handle(mppa_dl_handle_t *hdl, ElfK1_Dyn *dyn,
 	MPPA_DL_LOG(1, "> mppa_dl_init_handle(%p, %p, %p, %p, %d)\n",
 		    hdl, dyn, off, parent, availability);
 
-	size_t k = 0, relasz = 0, relaent = 0, pltrelsz = 0;
+	size_t k = 0, relasz = 0, relaent = 0, pltrelsz = 0, name_ofs = 0;
 	dyn = (ElfK1_Dyn *)((ElfK1_Addr)dyn + (ElfK1_Addr)off);
 
 	hdl->addr = (ElfK1_Addr*)off;
@@ -39,6 +40,9 @@ int mppa_dl_init_handle(mppa_dl_handle_t *hdl, ElfK1_Dyn *dyn,
 	hdl->parent = parent;
 	hdl->child = NULL;
 	hdl->availability = availability;
+	hdl->name = NULL;
+
+	mppa_dl_debug_init_debug(hdl);
 
 	if (parent != NULL)
 		parent->child = hdl;
@@ -80,6 +84,9 @@ int mppa_dl_init_handle(mppa_dl_handle_t *hdl, ElfK1_Dyn *dyn,
 		case DT_RELAENT:
 			relaent = dyn[k].d_un.d_val;
 			break;
+		case DT_SONAME:
+			name_ofs = dyn[k].d_un.d_val;
+			break;
 		default:
 			break;
 		}
@@ -90,6 +97,12 @@ int mppa_dl_init_handle(mppa_dl_handle_t *hdl, ElfK1_Dyn *dyn,
 	hdl->nchain = hdl->hash[1];
 	hdl->bucket = &hdl->hash[2];
 	hdl->chain = &hdl->hash[2+hdl->nbucket];
+
+	if (name_ofs && hdl->strtab) {
+		int name_len = strlen(hdl->strtab + name_ofs) + 1;
+		hdl->name = mppa_dl_malloc(name_len);
+		strcpy(hdl->name, hdl->strtab + name_ofs);
+	}
 
 	if (relasz == 0 || relaent == 0)
 		hdl->relan = 0;

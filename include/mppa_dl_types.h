@@ -5,6 +5,8 @@
 #ifndef MPPA_DL_TYPES_H
 #define MPPA_DL_TYPES_H
 
+#include "mppa_dl_debug.h"
+
 #define MAX(a,b) (((a)>(b))?(a):(b))
 
 #ifdef __K1_64__
@@ -84,8 +86,12 @@ typedef struct mppa_dl_handle {
 	char       *strtab; /* address of the DT_STRTAB string table */
 	size_t     strsz;   /* size in bytes of the DT_STRTAB string table */
 	ElfK1_Sym  *symtab; /* address of the DT_SYMTAB symbol table */
+	char       *name;   /* library name, if available */
 
 	int        availability; /* symbols availability */
+
+	/* Debuggging support. */
+	struct mppa_dl_debug_map_s debug_map;
 
 	/* mppa_dl_handle is a node of a doubly linked list */
 	struct mppa_dl_handle *parent;
