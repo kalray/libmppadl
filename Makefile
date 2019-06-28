@@ -1,4 +1,4 @@
-OS ?= mbr
+OS ?= cos
 cluster-system := ${OS}
 
 # build.rb defines the following variables: O, CFLAGS, INSTALL_LIBDIR, INSTALL_INCLUDEDIR, DOXYGEN_DIR, DOC_PREFIX

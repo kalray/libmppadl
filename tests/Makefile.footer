@@ -1,4 +1,5 @@
-system-name := $(OS)
+OS ?= cos
+cluster-system := $(OS)
 
 ifeq ($(CLUSTER_TYPE),ioddr)
 io-bin := $(cluster-or-io-bin)
