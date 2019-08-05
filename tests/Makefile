@@ -12,7 +12,8 @@ TESTS_NAMES =				\
 	global_pointer			\
 	sym_reloc			\
 	mem_func_override		\
-	modules_with_same_symbol_name
+	modules_with_same_symbol_name	\
+	zero_in_bss
 
 ROOT_DIR=$(abspath $(CURDIR))
 
