@@ -19,7 +19,7 @@ int mppa_dl_init_handle(mppa_dl_handle_t *hdl, ElfK1_Dyn *dyn,
 	MPPA_DL_LOG(1, "> mppa_dl_init_handle(%p, %p, %p, %p, %d)\n",
 		    hdl, dyn, off, parent, availability);
 
-	size_t k = 0, relasz = 0, relaent = 0, pltrelsz = 0, name_ofs = 0;
+	size_t k = 0, relasz = 0, pltrelsz = 0, name_ofs = 0;
 	dyn = (ElfK1_Dyn *)((ElfK1_Addr)dyn + (ElfK1_Addr)off);
 
 	hdl->addr = (ElfK1_Addr*)off;
@@ -81,9 +81,6 @@ int mppa_dl_init_handle(mppa_dl_handle_t *hdl, ElfK1_Dyn *dyn,
 		case DT_PLTRELSZ:
 			pltrelsz = dyn[k].d_un.d_val;
 			break;
-		case DT_RELAENT:
-			relaent = dyn[k].d_un.d_val;
-			break;
 		case DT_SONAME:
 			name_ofs = dyn[k].d_un.d_val;
 			break;
@@ -104,16 +101,10 @@ int mppa_dl_init_handle(mppa_dl_handle_t *hdl, ElfK1_Dyn *dyn,
 		strcpy(hdl->name, hdl->strtab + name_ofs);
 	}
 
-	if (relasz == 0 || relaent == 0)
-		hdl->relan = 0;
-	else
-		hdl->relan = relasz / relaent;
+	hdl->relan = relasz / sizeof(ElfK1_Rela);
 
 	if (hdl->pltrel == DT_RELA || hdl->pltrel == DT_NULL)
-		if (pltrelsz == 0 || relaent == 0)
-			hdl->pltreln = 0;
-		else
-			hdl->pltreln = pltrelsz / relaent;
+		hdl->pltreln = pltrelsz / sizeof(ElfK1_Rela);
 	else
 		return -1;
 
