@@ -23,6 +23,8 @@ void *mppa_dl_load(const char *image, int flag)
 	ElfK1_Shdr *shdr = (ElfK1_Shdr *)(image + ehdr->e_shoff);
 	/* Program header list */
 	ElfK1_Phdr *phdr = (ElfK1_Phdr *)(image + ehdr->e_phoff);
+	/* String table (section names) */
+	char *shstrtab = (char *)(image + shdr[ehdr->e_shstrndx].sh_offset);
 
 	if (flag <= MPPA_DL_FLAG_MIN || flag >= MPPA_DL_FLAG_MAX) {
 		mppa_dl_errno(E_WRONG_FLAG);
@@ -106,7 +108,13 @@ void *mppa_dl_load(const char *image, int flag)
 				mppa_dl_errno(E_INIT_HDL);
 				return NULL;
 			}
-			i = ehdr->e_shnum;
+			break;
+		/* fill .bss section with zeroes */
+		case SHT_NOBITS:
+			if (strcmp(".bss", &shstrtab[shdr[i].sh_name]) == 0) {
+				memset(addr + shdr[i].sh_addr, 0,
+				       shdr[i].sh_size);
+			}
 			break;
 		default:
 			break;
