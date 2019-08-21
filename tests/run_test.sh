@@ -26,6 +26,8 @@ else
     sed -e 's/^IO.*0@0.0: ....: \(.*\)$/\1/g' -i "${GENERATED}/sim_output_filtered"
     sed -e '/.*have no effect.*/d' -i  "${GENERATED}/sim_output_filtered"
     sed -e '/^Warning.*Cluster0$/d' -i "${GENERATED}/sim_output_filtered"
+    sed -e '/.*Using shared address.*/d' -i "${GENERATED}/sim_output_filtered"
+    sed -e '/.*Aliased address .*/d' -i "${GENERATED}/sim_output_filtered"
     echo "Diffing output with golden" >> "${LOG_FILE}"
 
     if ! diff -Nru "${GENERATED}/sim_output_filtered" "${GOLDEN_FILE}" >> "${LOG_FILE}"; then
