@@ -8,10 +8,21 @@
 #include <string.h>
 #include "mppa_dl_types.h"
 
+#ifdef __CLUSTER_OS__
+#include <hal/cos_bsp.h>
+#define __MPPA_DL_DEBUG_SECTION_TEXT__ __COS_USER_SMEM_TEXT_SECTION__
+#define __MPPA_DL_DEBUG_SECTION_DATA__ __COS_USER_SMEM_DATA_SECTION__
+#else
+#define __MPPA_DL_DEBUG_SECTION_TEXT__
+#define __MPPA_DL_DEBUG_SECTION_DATA__
+#endif
+
+__MPPA_DL_DEBUG_SECTION_TEXT__
 static void mppa_dl_debug_state_changed(void)
 {
 }
 
+__MPPA_DL_DEBUG_SECTION_DATA__
 struct mppa_dl_debug_s mppa_dl_debug = {
 	.version = DL_VERSION,
 	.head = 0,
