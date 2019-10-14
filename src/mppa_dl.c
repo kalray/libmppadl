@@ -63,10 +63,6 @@ void *mppa_dl_load(const char *image, int flag)
 	}
 
 	addr = mppa_dl_memalign(malign, memsz);
-#ifdef __mos__
-	bsp_set_page_access_rights((uintptr_t) addr, ((uintptr_t) addr) + memsz,
-				   _K1_MMU_PA_RWX_RWX);
-#endif
 
 	MPPA_DL_LOG(2, ">> allocate %ld bytes of memory at 0x%lx, "
 		    "with alignement: %ld\n",
