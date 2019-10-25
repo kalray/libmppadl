@@ -60,6 +60,13 @@ void *mppa_dl_load(const char *image, int flag)
 			memsz = MAX(memsz, phdr[i].p_vaddr + phdr[i].p_memsz);
 			malign = MAX(malign, phdr[i].p_align);
 		}
+
+		/* Bailout if TLS data is found. We do not support any TLS at the moment. */
+		if (phdr[i].p_type == PT_TLS) {
+			MPPA_DL_LOG(2, ">> ELF image contains TLS data, this is not supported\n");
+			mppa_dl_errno(E_UNSUP_TLS);
+			return NULL;
+		}
 	}
 
 	addr = mppa_dl_memalign(malign, memsz);

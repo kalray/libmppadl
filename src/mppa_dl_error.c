@@ -67,6 +67,9 @@ char *mppa_dl_error(void)
 	case E_WRONG_FLAG:
 		err_msg = "wrong flag for mppa_dl_load()";
 		break;
+	case E_UNSUP_TLS:
+		err_msg = "TLS data not supported";
+		break;
 	default:
 		err_msg = "unknown error";
 	}
