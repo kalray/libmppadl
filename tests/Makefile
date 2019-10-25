@@ -13,7 +13,8 @@ TESTS_NAMES =				\
 	sym_reloc			\
 	mem_func_override		\
 	modules_with_same_symbol_name	\
-	zero_in_bss
+	zero_in_bss 			\
+	tls
 
 ROOT_DIR=$(abspath $(CURDIR))
 
