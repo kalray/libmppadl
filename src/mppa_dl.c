@@ -182,6 +182,8 @@ int mppa_dl_unload(void *handle)
 	int ret = 0;
 	mppa_dl_handle_t *hdl = (mppa_dl_handle_t*)handle;
 
+	 mppa_dl_debug_set_valid(0);
+
 	mppa_dl_free(hdl->addr); /* free allocated ELF image memory */
 
 	/* remove the handle from the list */

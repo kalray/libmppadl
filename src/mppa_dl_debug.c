@@ -27,11 +27,26 @@ struct mppa_dl_debug_s mppa_dl_debug = {
 	.version = DL_VERSION,
 	.head = 0,
 	.brk = &mppa_dl_debug_state_changed,
+	.valid = 1,
 };
+
+void mppa_dl_debug_set_valid(uint64_t valid)
+{
+	__builtin_k1_fence();
+	mppa_dl_debug.valid = valid;
+	__builtin_k1_fence();
+
+	#ifdef __CLUSTER_OS__
+	cos_duplicate_cluster_data(&mppa_dl_debug.valid,
+		sizeof(mppa_dl_debug.valid));
+	#endif
+}
 
 void mppa_dl_debug_update(struct mppa_dl_handle *phdl)
 {
 	struct mppa_dl_debug_map_s **p;
+
+	mppa_dl_debug_set_valid(0);
 
 	if (!phdl) {
 		mppa_dl_debug.head = 0;
@@ -69,7 +84,12 @@ void mppa_dl_debug_update(struct mppa_dl_handle *phdl)
 		*p = NULL;
 	}
 
-	__builtin_k1_fence();
+	#ifdef __CLUSTER_OS__
+	cos_duplicate_cluster_data(&mppa_dl_debug.head,
+		sizeof(mppa_dl_debug.head));
+	#endif
+
+	mppa_dl_debug_set_valid(1);
 
 	/* allow to see the changes */
 	((void (*)(void)) mppa_dl_debug.brk)();
