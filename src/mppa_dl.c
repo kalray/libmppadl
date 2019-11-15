@@ -153,6 +153,7 @@ void *mppa_dl_load(const char *image, int flag)
 
 	__builtin_k1_fence();
 	__builtin_k1_iinval();
+	__builtin_k1_barrier();
 
 	mppa_dl_debug_update(head);
 
