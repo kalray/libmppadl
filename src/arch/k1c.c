@@ -38,7 +38,8 @@ int mppa_dl_apply_rela(mppa_dl_handle_t *hdl, ElfK1_Rela rel)
 
 	case R_K1_32:
 		tmp = (uintptr_t) mppa_dl_sym_lookup(hdl, &hdl->strtab[sym.st_name], 0);
-		if (tmp == 0 && mppa_dl_errno_get_status() != E_NONE)
+		if (tmp == 0 && mppa_dl_errno_get_status() != E_NONE
+		    && ELFK1_ST_BIND(sym.st_info) != STB_WEAK)
 			return -2;
 		tmp += (ElfK1_Word)rel.r_addend;
 		memcpy((void *)hdl->addr + rel.r_offset, &tmp,
@@ -47,7 +48,8 @@ int mppa_dl_apply_rela(mppa_dl_handle_t *hdl, ElfK1_Rela rel)
 
 	case R_K1_64:
 		tmp64 = (uintptr_t) mppa_dl_sym_lookup(hdl, &hdl->strtab[sym.st_name], 0);
-		if (tmp64 == 0 && mppa_dl_errno_get_status() != E_NONE)
+		if (tmp64 == 0 && mppa_dl_errno_get_status() != E_NONE
+		    && ELFK1_ST_BIND(sym.st_info) != STB_WEAK)
 			return -2;
 		tmp64 += (ElfK1_Lword)rel.r_addend;
 		memcpy((void *)hdl->addr + rel.r_offset, &tmp64,
@@ -68,7 +70,8 @@ int mppa_dl_apply_rela(mppa_dl_handle_t *hdl, ElfK1_Rela rel)
 	case R_K1_GLOB_DAT:
 	case R_K1_JMP_SLOT:
 		R_TMP = (uintptr_t) mppa_dl_sym_lookup(hdl, &hdl->strtab[sym.st_name], 0);
-		if (R_TMP == 0 && mppa_dl_errno_get_status() != E_NONE)
+		if (R_TMP == 0 && mppa_dl_errno_get_status() != E_NONE
+		    && ELFK1_ST_BIND(sym.st_info) != STB_WEAK)
 			return -2;
 
 		memcpy((void *)hdl->addr + rel.r_offset, &R_TMP,

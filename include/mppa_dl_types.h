@@ -23,6 +23,7 @@ typedef Elf64_Phdr ElfK1_Phdr;
 
 #define ELFK1_R_TYPE(i) ELF64_R_TYPE((i))
 #define ELFK1_R_SYM(i)  ELF64_R_SYM((i))
+#define ELFK1_ST_BIND(I)  ELF64_ST_BIND(I)
 #else
 typedef Elf32_Dyn  ElfK1_Dyn;
 typedef Elf32_Word ElfK1_Word;
@@ -37,6 +38,7 @@ typedef Elf32_Phdr ElfK1_Phdr;
 
 #define ELFK1_R_TYPE(i) ELF32_R_TYPE((i))
 #define ELFK1_R_SYM(i)  ELF32_R_SYM((i))
+#define ELFK1_ST_BIND(I)  ELF32_ST_BIND(I)
 #endif
 
 extern __attribute__((weak)) ElfK1_Dyn _DYNAMIC[];

@@ -14,6 +14,7 @@ TESTS_NAMES =				\
 	mem_func_override		\
 	modules_with_same_symbol_name	\
 	zero_in_bss 			\
+	weak_sym			\
 	tls
 
 ROOT_DIR=$(abspath $(CURDIR))
