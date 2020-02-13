@@ -13,7 +13,7 @@ cluster-or-io-dynbin := mem_func_override_mdo
 
 include ../Makefile.footer
 
-include $(K1_TOOLCHAIN_DIR)/share/make/Makefile.kalray
+include $(KALRAY_TOOLCHAIN_DIR)/share/make/Makefile.kalray
 
 $(eval $(call mdo_rules,mem_func_override))
 $(eval $(call test_rule))

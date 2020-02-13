@@ -12,7 +12,7 @@ void *mppa_dl_load_addr(mppa_dl_handle_t *hdl)
 }
 
 
-int mppa_dl_init_handle(mppa_dl_handle_t *hdl, ElfK1_Dyn *dyn,
+int mppa_dl_init_handle(mppa_dl_handle_t *hdl, ElfKVX_Dyn *dyn,
 			void *off, mppa_dl_handle_t *parent,
 			int availability)
 {
@@ -20,9 +20,9 @@ int mppa_dl_init_handle(mppa_dl_handle_t *hdl, ElfK1_Dyn *dyn,
 		    hdl, dyn, off, parent, availability);
 
 	size_t k = 0, relasz = 0, pltrelsz = 0, name_ofs = 0;
-	dyn = (ElfK1_Dyn *)((ElfK1_Addr)dyn + (ElfK1_Addr)off);
+	dyn = (ElfKVX_Dyn *)((ElfKVX_Addr)dyn + (ElfKVX_Addr)off);
 
-	hdl->addr = (ElfK1_Addr*)off;
+	hdl->addr = (ElfKVX_Addr*)off;
 	hdl->type = ET_DYN;
 	hdl->nbucket = 0;
 	hdl->nchain = 0;
@@ -50,30 +50,30 @@ int mppa_dl_init_handle(mppa_dl_handle_t *hdl, ElfK1_Dyn *dyn,
 	while (dyn[k].d_tag != DT_NULL) {
 		switch (dyn[k].d_tag) {
 		case DT_HASH:
-			hdl->hash = (ElfK1_Word *)
-					(dyn[k].d_un.d_ptr + (ElfK1_Addr)off);
+			hdl->hash = (ElfKVX_Word *)
+					(dyn[k].d_un.d_ptr + (ElfKVX_Addr)off);
 			break;
 		case DT_STRTAB:
 			hdl->strtab = (char *)
-					(dyn[k].d_un.d_ptr + (ElfK1_Addr)off);
+					(dyn[k].d_un.d_ptr + (ElfKVX_Addr)off);
 			break;
 		case DT_STRSZ:
 			hdl->strsz = dyn[k].d_un.d_val;
 			break;
 		case DT_SYMTAB:
-			hdl->symtab = (ElfK1_Sym *)
-					(dyn[k].d_un.d_ptr + (ElfK1_Addr)off);
+			hdl->symtab = (ElfKVX_Sym *)
+					(dyn[k].d_un.d_ptr + (ElfKVX_Addr)off);
 			break;
 		case DT_RELA:
-			hdl->rela = (ElfK1_Rela *)
-					(dyn[k].d_un.d_ptr + (ElfK1_Addr)off);
+			hdl->rela = (ElfKVX_Rela *)
+					(dyn[k].d_un.d_ptr + (ElfKVX_Addr)off);
 			break;
 		case DT_RELASZ:
 			relasz = dyn[k].d_un.d_val;
 			break;
 		case DT_JMPREL:
 			hdl->jmprel = (void *)
-					(dyn[k].d_un.d_ptr + (ElfK1_Addr)off);
+					(dyn[k].d_un.d_ptr + (ElfKVX_Addr)off);
 			break;
 		case DT_PLTREL:
 			hdl->pltrel = dyn[k].d_un.d_val;
@@ -101,10 +101,10 @@ int mppa_dl_init_handle(mppa_dl_handle_t *hdl, ElfK1_Dyn *dyn,
 		strcpy(hdl->name, hdl->strtab + name_ofs);
 	}
 
-	hdl->relan = relasz / sizeof(ElfK1_Rela);
+	hdl->relan = relasz / sizeof(ElfKVX_Rela);
 
 	if (hdl->pltrel == DT_RELA || hdl->pltrel == DT_NULL)
-		hdl->pltreln = pltrelsz / sizeof(ElfK1_Rela);
+		hdl->pltreln = pltrelsz / sizeof(ElfKVX_Rela);
 	else
 		return -1;
 

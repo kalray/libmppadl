@@ -14,7 +14,7 @@ cluster-or-io-dynbin := char_s_mdo
 
 include ../Makefile.footer
 
-include $(K1_TOOLCHAIN_DIR)/share/make/Makefile.kalray
+include $(KALRAY_TOOLCHAIN_DIR)/share/make/Makefile.kalray
 
 $(eval $(call mdo_rules,char_s))
 $(eval $(call test_rule))

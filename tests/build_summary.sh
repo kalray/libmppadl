@@ -2,7 +2,7 @@
 set -e
 set -u
 
-READELF=k1-elf-readelf
+READELF=kvx-elf-readelf
 
 find -path '*output/bin/*_mdo' | while read f;
 do

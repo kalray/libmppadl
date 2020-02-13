@@ -14,7 +14,7 @@ cluster-or-io-dynbin := weak_sym_mdo
 
 include ../Makefile.footer
 
-include $(K1_TOOLCHAIN_DIR)/share/make/Makefile.kalray
+include $(KALRAY_TOOLCHAIN_DIR)/share/make/Makefile.kalray
 
 $(eval $(call mdo_rules,weak_sym))
 $(eval $(call test_rule))

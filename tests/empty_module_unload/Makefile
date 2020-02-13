@@ -13,7 +13,7 @@ cluster-or-io-dynbin := empty_module_unload_mdo
 
 include ../Makefile.footer
 
-include $(K1_TOOLCHAIN_DIR)/share/make/Makefile.kalray
+include $(KALRAY_TOOLCHAIN_DIR)/share/make/Makefile.kalray
 
 $(eval $(call mdo_rules,empty_module_unload))
 $(eval $(call test_rule))

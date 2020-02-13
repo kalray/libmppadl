@@ -18,7 +18,7 @@ cluster-or-io-dynbin := module_A_mdo module_B_mdo
 
 include ../Makefile.footer
 
-include $(K1_TOOLCHAIN_DIR)/share/make/Makefile.kalray
+include $(KALRAY_TOOLCHAIN_DIR)/share/make/Makefile.kalray
 
 $(eval $(call mdo_rules,module_A))
 $(eval $(call mdo_rules,module_B))

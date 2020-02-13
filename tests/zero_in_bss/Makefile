@@ -13,7 +13,7 @@ cluster-or-io-dynbin := zero_in_bss_mdo
 
 include ../Makefile.footer
 
-include $(K1_TOOLCHAIN_DIR)/share/make/Makefile.kalray
+include $(KALRAY_TOOLCHAIN_DIR)/share/make/Makefile.kalray
 
 $(eval $(call mdo_rules,zero_in_bss))
 $(eval $(call test_rule))

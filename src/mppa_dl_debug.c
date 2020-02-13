@@ -32,9 +32,9 @@ struct mppa_dl_debug_s mppa_dl_debug = {
 
 void mppa_dl_debug_set_valid(uint64_t valid)
 {
-	__builtin_k1_fence();
+	__builtin_kvx_fence();
 	mppa_dl_debug.valid = valid;
-	__builtin_k1_fence();
+	__builtin_kvx_fence();
 
 	#ifdef __CLUSTER_OS__
 	cos_duplicate_cluster_data(&mppa_dl_debug.valid,

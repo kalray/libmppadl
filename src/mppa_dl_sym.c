@@ -9,7 +9,7 @@ void *mppa_dl_sym_lookup2(mppa_dl_handle_t *hdl, const char *symbol)
 	MPPA_DL_LOG(1, "> mppa_dl_sym_lookup2(%p, %s)\n",
 		    hdl, symbol);
 
-	ElfK1_Sym sym;
+	ElfKVX_Sym sym;
 	size_t bndx;
 	size_t symndx;
 
@@ -42,7 +42,7 @@ void *mppa_dl_sym_lookup2(mppa_dl_handle_t *hdl, const char *symbol)
 	if (sym.st_shndx != SHN_UNDEF && hdl->type == ET_DYN) {
 		MPPA_DL_LOG(2, ">> symbol found at offset 0x%lx\n",
 			    sym.st_value);
-		ElfK1_Addr ret = ((ElfK1_Addr)hdl->addr + sym.st_value);
+		ElfKVX_Addr ret = ((ElfKVX_Addr)hdl->addr + sym.st_value);
 		MPPA_DL_LOG(1, "< mppa_dl_sym_lookup2(%p, %s) -> %lx\n",
 			    hdl, symbol, (long)ret);
 

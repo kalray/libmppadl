@@ -1,1 +1,0 @@
-K1_CLUSTER_ARGS:=--mcluster=$(CLUSTER_TYPE) --march=bostan

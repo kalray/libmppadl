@@ -13,7 +13,7 @@ cluster-or-io-dynbin := sym_reloc_mdo
 
 include ../Makefile.footer
 
-include $(K1_TOOLCHAIN_DIR)/share/make/Makefile.kalray
+include $(KALRAY_TOOLCHAIN_DIR)/share/make/Makefile.kalray
 
 $(eval $(call mdo_rules,sym_reloc))
 $(eval $(call test_rule))

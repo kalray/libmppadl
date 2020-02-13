@@ -12,7 +12,7 @@ MPPADL_SRCS = 				\
 	src/mppa_dl_mem.c
 
 ## Use target dependent implementation
-MPPADL_SRCS += src/arch/$(ARCH).c
+MPPADL_SRCS += src/arch/kv3.c
 
 use-module := strict-flags
 
@@ -32,7 +32,7 @@ cluster-bin := somppadl # trick: use -bin rule to build a dynamic, shared librar
 
 post-build-hooks := mv-so-from-bin-to-lib
 
-include $(K1_TOOLCHAIN_DIR)/share/make/Makefile.kalray
+include $(KALRAY_TOOLCHAIN_DIR)/share/make/Makefile.kalray
 
 mv-so-from-bin-to-lib:
 	mv $(O)/bin/libsomppadl.so $(O)/lib/cluster

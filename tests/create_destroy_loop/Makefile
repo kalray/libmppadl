@@ -13,7 +13,7 @@ cluster-or-io-dynbin := create_destroy_mdo
 
 include ../Makefile.footer
 
-include $(K1_TOOLCHAIN_DIR)/share/make/Makefile.kalray
+include $(KALRAY_TOOLCHAIN_DIR)/share/make/Makefile.kalray
 
 $(eval $(call mdo_rules,create_destroy))
 $(eval $(call test_rule))

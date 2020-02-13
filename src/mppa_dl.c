@@ -18,11 +18,11 @@ void *mppa_dl_load(const char *image, int flag)
 	void *addr = NULL;
 
 	/* ELF header */
-	ElfK1_Ehdr *ehdr = (ElfK1_Ehdr *)image;
+	ElfKVX_Ehdr *ehdr = (ElfKVX_Ehdr *)image;
 	/* Section header list */
-	ElfK1_Shdr *shdr = (ElfK1_Shdr *)(image + ehdr->e_shoff);
+	ElfKVX_Shdr *shdr = (ElfKVX_Shdr *)(image + ehdr->e_shoff);
 	/* Program header list */
-	ElfK1_Phdr *phdr = (ElfK1_Phdr *)(image + ehdr->e_phoff);
+	ElfKVX_Phdr *phdr = (ElfKVX_Phdr *)(image + ehdr->e_phoff);
 	/* String table (section names) */
 	char *shstrtab = (char *)(image + shdr[ehdr->e_shstrndx].sh_offset);
 
@@ -73,7 +73,7 @@ void *mppa_dl_load(const char *image, int flag)
 
 	MPPA_DL_LOG(2, ">> allocate %ld bytes of memory at 0x%lx, "
 		    "with alignement: %ld\n",
-		    (long int)memsz, (ElfK1_Addr)addr, (long int)malign);
+		    (long int)memsz, (ElfKVX_Addr)addr, (long int)malign);
 
 	if (addr == NULL) {
 		mppa_dl_errno(E_MEM_ALIGN);
@@ -89,7 +89,7 @@ void *mppa_dl_load(const char *image, int flag)
 
 			MPPA_DL_LOG(2, ">> load segment: %lu bytes at 0x%lx\n",
 				    phdr[i].p_memsz,
-				    (ElfK1_Addr)addr + phdr[i].p_vaddr);
+				    (ElfKVX_Addr)addr + phdr[i].p_vaddr);
 			break;
 		default: /* do not load other segments */
 			break;
@@ -104,7 +104,7 @@ void *mppa_dl_load(const char *image, int flag)
 				mppa_dl_malloc(sizeof(mppa_dl_handle_t));
 			if (mppa_dl_init_handle(
 				    hdl,
-				    (ElfK1_Dyn *)((ElfK1_Addr)shdr[i].sh_addr),
+				    (ElfKVX_Dyn *)((ElfKVX_Addr)shdr[i].sh_addr),
 				    addr, head, flag) == 0) {
 				head = hdl;
 			} else {
@@ -141,7 +141,7 @@ void *mppa_dl_load(const char *image, int flag)
 		if (head->pltrel == DT_RELA) {
 			if (mppa_dl_apply_rela(
 				    head,
-				    ((ElfK1_Rela*)head->jmprel)[i]) != 0) {
+				    ((ElfKVX_Rela*)head->jmprel)[i]) != 0) {
 				mppa_dl_errno(E_RELOC);
 				return NULL;
 			}
@@ -151,9 +151,9 @@ void *mppa_dl_load(const char *image, int flag)
 		}
 	}
 
-	__builtin_k1_fence();
-	__builtin_k1_iinval();
-	__builtin_k1_barrier();
+	__builtin_kvx_fence();
+	__builtin_kvx_iinval();
+	__builtin_kvx_barrier();
 
 	mppa_dl_debug_update(head);
 
