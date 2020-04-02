@@ -51,6 +51,8 @@ test: $$(BIN_DIR)/main
 
 ifneq (,$$(filter $(EXECUTION_PLATFORM)-$(BOARD),hw-csp_generic))
 	../run_test.sh "$(GENERATED)/test.log" "$(GENERATED)" golden "$$<" $(KVX_JTAG_RUNNER) $(KVX_JTAG_RUNNER_ARGS) --exec-file=Cluster0:$$<
+else ifneq (,$$(filter $(EXECUTION_PLATFORM)-$(BOARD),hw-coolisaurus))
+	../run_test.sh "$(GENERATED)/test.log" "$(GENERATED)" golden "$$<" $(KVX_JTAG_RUNNER) $(KVX_JTAG_RUNNER_ARGS) --exec-file=Cluster0:$$<
 else ifneq (,$$(filter $(EXECUTION_PLATFORM)-$(BOARD),sim-csp_generic))
 	../run_test.sh "$(GENERATED)/test.log" "$(GENERATED)" golden "$$<" $(KVX_MPPA) $(KVX_MPPA_ARGS) -- $$<
 else
