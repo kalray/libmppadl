@@ -38,9 +38,10 @@ void *mppa_dl_load(const char *image, int flag)
 
 		head = (mppa_dl_handle_t *)
 			mppa_dl_malloc(sizeof(mppa_dl_handle_t));
-		if (mppa_dl_init_handle(head, _DYNAMIC, NULL, NULL,
-					MPPA_DL_GLOBAL) != 0) {
-			mppa_dl_errno(E_INIT_HDL);
+		enum MPPA_DL_ERRNO err = mppa_dl_init_handle(head, _DYNAMIC, NULL, NULL,
+							     MPPA_DL_GLOBAL) ;
+		if (err != E_NONE) {
+			mppa_dl_errno(err);
 			return NULL;
 		}
 	}
@@ -102,13 +103,14 @@ void *mppa_dl_load(const char *image, int flag)
 		case SHT_DYNAMIC:
 			hdl = (mppa_dl_handle_t *)
 				mppa_dl_malloc(sizeof(mppa_dl_handle_t));
-			if (mppa_dl_init_handle(
-				    hdl,
-				    (ElfKVX_Dyn *)((ElfKVX_Addr)shdr[i].sh_addr),
-				    addr, head, flag) == 0) {
+			enum MPPA_DL_ERRNO err = mppa_dl_init_handle(
+				hdl,
+				(ElfKVX_Dyn *)((ElfKVX_Addr)shdr[i].sh_addr),
+				addr, head, flag);
+			if (err == E_NONE) {
 				head = hdl;
 			} else {
-				mppa_dl_errno(E_INIT_HDL);
+				mppa_dl_errno(err);
 				return NULL;
 			}
 			break;
@@ -119,11 +121,21 @@ void *mppa_dl_load(const char *image, int flag)
 				       shdr[i].sh_size);
 			}
 			break;
+		/* Rejects .ctors/.dtors sections based
+		 * constructors/destructors. init_array/fini_array and
+		 * DT_INIT/DT_FINI are handled in
+		 * mppa_dl_init_handle */
+		case SHT_PROGBITS:
+			if (strcmp(".ctors", &shstrtab[shdr[i].sh_name]) == 0
+			    || strcmp(".dtors", &shstrtab[shdr[i].sh_name]) == 0) {
+				mppa_dl_errno(E_UNSUP_CTOR_DTOR);
+				return NULL;
+			}
+			break;
 		default:
 			break;
 		}
 	}
-
 
 	/* process relocations */
 

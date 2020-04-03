@@ -70,6 +70,9 @@ char *mppa_dl_error(void)
 	case E_UNSUP_TLS:
 		err_msg = "TLS data not supported";
 		break;
+	case E_UNSUP_CTOR_DTOR:
+		err_msg = "Constructors/Destructors not supported";
+		break;
 	default:
 		err_msg = "unknown error";
 	}

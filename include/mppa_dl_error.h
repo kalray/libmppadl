@@ -22,7 +22,8 @@ enum MPPA_DL_ERRNO {
 	E_NO_SYM,
 	E_INIT_HDL,
 	E_WRONG_FLAG,
-	E_UNSUP_TLS
+	E_UNSUP_TLS,
+	E_UNSUP_CTOR_DTOR
 };
 
 #define MPPA_DL_LOG(level, fmt, ...)			\

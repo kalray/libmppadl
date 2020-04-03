@@ -12,10 +12,11 @@ void *mppa_dl_load_addr(mppa_dl_handle_t *hdl)
 }
 
 
-int mppa_dl_init_handle(mppa_dl_handle_t *hdl, ElfKVX_Dyn *dyn,
+enum MPPA_DL_ERRNO mppa_dl_init_handle(mppa_dl_handle_t *hdl, ElfKVX_Dyn *dyn,
 			void *off, mppa_dl_handle_t *parent,
 			int availability)
 {
+	enum MPPA_DL_ERRNO ret = E_NONE;
 	MPPA_DL_LOG(1, "> mppa_dl_init_handle(%p, %p, %p, %p, %d)\n",
 		    hdl, dyn, off, parent, availability);
 
@@ -84,6 +85,18 @@ int mppa_dl_init_handle(mppa_dl_handle_t *hdl, ElfKVX_Dyn *dyn,
 		case DT_SONAME:
 			name_ofs = dyn[k].d_un.d_val;
 			break;
+		case DT_INIT_ARRAY:
+		case DT_FINI_ARRAY:
+		case DT_INIT:
+		case DT_FINI:
+		  /* Only reject for object being dynamically
+		     loaded. Don't reject handle creation for the main
+		     program context */
+		  if (parent != NULL) {
+		    ret = E_UNSUP_CTOR_DTOR;
+		    goto early_exit;
+		  }
+		  break;
 		default:
 			break;
 		}
@@ -106,10 +119,11 @@ int mppa_dl_init_handle(mppa_dl_handle_t *hdl, ElfKVX_Dyn *dyn,
 	if (hdl->pltrel == DT_RELA || hdl->pltrel == DT_NULL)
 		hdl->pltreln = pltrelsz / sizeof(ElfKVX_Rela);
 	else
-		return -1;
+		ret = E_INIT_HDL;
 
+	early_exit:
 	MPPA_DL_LOG(1, "< mppa_dl_init_handle(%p, %p, %p, %p, %d)\n",
 		    hdl, dyn, off, parent, availability);
 
-	return 0;
+	return ret;
 }
