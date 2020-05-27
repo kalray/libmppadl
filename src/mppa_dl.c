@@ -218,7 +218,6 @@ int mppa_dl_unload(void *handle)
 		MPPA_DL_LOG(2, ">> unload also handle for main program\n");
 
 		if (head->parent == NULL) {
-			mppa_dl_free(head->addr);
 			mppa_dl_free(head);
 			head = NULL;
 		}
