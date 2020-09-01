@@ -1,5 +1,6 @@
 OS ?= cos
 cluster-system := ${OS}
+arch ?= kv3-1
 
 # build.rb defines the following variables: O, CFLAGS, INSTALL_LIBDIR, INSTALL_INCLUDEDIR, DOXYGEN_DIR, DOC_PREFIX
 

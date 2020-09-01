@@ -5,7 +5,7 @@ O=$(DESTDIR)/output
 
 
 board := $(BOARD)
-arch := $(ARCH)
+arch ?= kv3-1
 
 BIN2H:=$(abspath ../bin2h_v2.py)
 GENERATED:=$(abspath $(DESTDIR)/generated)
@@ -14,7 +14,7 @@ KVX_JTAG_RUNNER := kvx-jtag-runner
 KVX_JTAG_RUNNER_ARGS := --timeout=600
 
 KVX_MPPA := kvx-mppa
-KVX_MPPA_ARGS := --no-trap
+KVX_MPPA_ARGS := --march=$(arch) --no-trap
 
 -include Makefile.arch.$(arch)
 
