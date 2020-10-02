@@ -18,7 +18,7 @@ KVX_MPPA_ARGS := --march=$(arch) --no-trap
 
 -include Makefile.arch.$(arch)
 
-MAIN_LDFLAGS := $(SPEC_LDFLAGS) -Wl,-E -Wl,--dynamic-list-data -lmppadl -lsomppadl -lelf
+MAIN_LDFLAGS := $(SPEC_LDFLAGS) -Wl,-E -Wl,--dynamic-list-data -lmppadl -lsomppadl -lelf -Wl,--no-dynamic-linker
 MAIN_CFLAGS := -I$(GENERATED) $(SPEC_CFLAGS) -g -O0
 
 MPPADL_INCLUDE_PATH ?= $(abspath $(CURDIR)/../../include/)
