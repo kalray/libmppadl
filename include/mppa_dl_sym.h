@@ -16,4 +16,7 @@ void *mppa_dl_sym_lookup(mppa_dl_handle_t *hdl, const char *symbol, int local);
 
 void *mppa_dl_sym_lookup2(mppa_dl_handle_t *hdl, const char *symbol);
 
+void *mppa_dl_sym_lookup_local(struct mppa_dl_handle *hdl,
+	const char *sym_name);
+
 #endif

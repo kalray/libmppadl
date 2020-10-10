@@ -10,6 +10,7 @@ MPPADL_SRCS = 				\
 	src/mppa_dl_sym.c 		\
 	src/mppa_dl_error.c 		\
 	src/mppa_dl_debug.c		\
+	src/mppa_dl_trace.c		\
 	src/mppa_dl_mem.c
 
 ## Use target dependent implementation

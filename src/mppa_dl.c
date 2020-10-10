@@ -13,6 +13,10 @@ void *mppa_dl_load(const char *image, int flag)
 
 	size_t i;
 	size_t memsz = 0, malign = 0;
+	size_t sht_symtab_nb_syms = 0;
+	int nb_tps = 0;
+	const char *sht_strtab = NULL;
+	ElfKVX_Sym *sht_symtab_syms = NULL;
 
 	mppa_dl_handle_t *hdl = NULL;
 	void *addr = NULL;
@@ -114,11 +118,26 @@ void *mppa_dl_load(const char *image, int flag)
 				return NULL;
 			}
 			break;
+		case SHT_STRTAB:
+			sht_strtab = image + shdr[i].sh_offset;
+			break;
+		case SHT_SYMTAB:
+			sht_symtab_nb_syms =
+				shdr[i].sh_size / shdr[i].sh_entsize;
+			sht_symtab_syms = (ElfKVX_Sym *)
+				(shdr[i].sh_offset + image);
+			break;
 		/* fill .bss section with zeroes */
 		case SHT_NOBITS:
 			if (strcmp(".bss", &shstrtab[shdr[i].sh_name]) == 0) {
 				memset(addr + shdr[i].sh_addr, 0,
 				       shdr[i].sh_size);
+			}
+			break;
+		case SHT_NOTE:
+			if (strcmp("kvx_tp_id",
+				&shstrtab[shdr[i].sh_name]) == 0) {
+				nb_tps = (int) shdr[i].sh_size;
 			}
 			break;
 		/* Rejects .ctors/.dtors sections based
@@ -136,6 +155,10 @@ void *mppa_dl_load(const char *image, int flag)
 			break;
 		}
 	}
+
+	head->sht_strtab = sht_strtab;
+	head->sht_symtab_syms = sht_symtab_syms;
+	head->sht_symtab_nb_syms = sht_symtab_nb_syms;
 
 	/* process relocations */
 
@@ -167,6 +190,8 @@ void *mppa_dl_load(const char *image, int flag)
 	__builtin_kvx_iinval();
 	__builtin_kvx_barrier();
 
+	mppa_dl_trace_load(head, nb_tps);
+
 	mppa_dl_debug_update(head);
 
 	MPPA_DL_LOG(1, "< mppa_dl_load(%s, %d)\n", image, flag);
@@ -196,6 +221,8 @@ int mppa_dl_unload(void *handle)
 	mppa_dl_handle_t *hdl = (mppa_dl_handle_t*)handle;
 
 	 mppa_dl_debug_set_valid(0);
+
+	 mppa_dl_trace_unload(hdl);
 
 	mppa_dl_free(hdl->addr); /* free allocated ELF image memory */
 

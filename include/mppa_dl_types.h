@@ -6,6 +6,7 @@
 #define MPPA_DL_TYPES_H
 
 #include "mppa_dl_debug.h"
+#include "mppa_dl_trace.h"
 
 #define MAX(a,b) (((a)>(b))?(a):(b))
 
@@ -83,6 +84,10 @@ typedef struct mppa_dl_handle {
 			       (either DT_REL or DT_RELA) */
 	size_t     pltreln; /* number of DT_JMPREL relocations */
 
+	const char  *sht_strtab; /* address of SHT_STRTAB string table */
+	ElfKVX_Sym  *sht_symtab_syms; /* address of the SHT_SYMTAB list */
+	size_t      sht_symtab_nb_syms; /* number of symbols in SHT_SYMTAB */
+
 	char       *strtab; /* address of the DT_STRTAB string table */
 	size_t     strsz;   /* size in bytes of the DT_STRTAB string table */
 	ElfKVX_Sym  *symtab; /* address of the DT_SYMTAB symbol table */
@@ -90,8 +95,11 @@ typedef struct mppa_dl_handle {
 
 	int        availability; /* symbols availability */
 
-	/* Debuggging support. */
+	/* Debugging support. */
 	struct mppa_dl_debug_map_s debug_map;
+
+	/* Trace support */
+	struct mppa_dl_trace_info trace_info;
 
 	/* mppa_dl_handle is a node of a doubly linked list */
 	struct mppa_dl_handle *parent;

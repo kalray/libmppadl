@@ -35,6 +35,9 @@ enum MPPA_DL_ERRNO mppa_dl_init_handle(mppa_dl_handle_t *hdl, ElfKVX_Dyn *dyn,
 	hdl->jmprel = NULL;
 	hdl->pltrel = DT_NULL;
 	hdl->pltreln = 0;
+	hdl->sht_strtab = NULL;
+	hdl->sht_symtab_syms = NULL;
+	hdl->sht_symtab_nb_syms = 0;
 	hdl->strtab = 0;
 	hdl->strsz = 0;
 	hdl->symtab = 0;
@@ -44,6 +47,8 @@ enum MPPA_DL_ERRNO mppa_dl_init_handle(mppa_dl_handle_t *hdl, ElfKVX_Dyn *dyn,
 	hdl->name = NULL;
 
 	mppa_dl_debug_init_debug(hdl);
+
+	mppa_dl_trace_init(hdl);
 
 	if (parent != NULL)
 		parent->child = hdl;

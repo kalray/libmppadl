@@ -102,3 +102,21 @@ void *mppa_dl_sym_lookup(mppa_dl_handle_t *hdl, const char* symbol, int local)
 
 	return NULL;
 }
+
+void *mppa_dl_sym_lookup_local(struct mppa_dl_handle *hdl,
+	const char *sym_name)
+{
+	ElfKVX_Sym *sym;
+	unsigned int i;
+
+	if (hdl->sht_strtab == NULL || hdl->sht_symtab_syms == NULL)
+		return NULL;
+
+	for (i = 0; i < hdl->sht_symtab_nb_syms; i++) {
+		sym = &hdl->sht_symtab_syms[i];
+		if (!strcmp(sym_name, &hdl->sht_strtab[sym->st_name]))
+			return hdl->addr + sym->st_value;
+	}
+
+	return NULL;
+}
