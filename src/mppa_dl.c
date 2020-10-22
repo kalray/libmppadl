@@ -119,7 +119,10 @@ void *mppa_dl_load(const char *image, int flag)
 			}
 			break;
 		case SHT_STRTAB:
-			sht_strtab = image + shdr[i].sh_offset;
+			/* there can be several STRTAB sections but we are only
+			* interested by .strtab */
+			if (strcmp(".strtab", &shstrtab[shdr[i].sh_name]) == 0)
+				sht_strtab = image + shdr[i].sh_offset;
 			break;
 		case SHT_SYMTAB:
 			sht_symtab_nb_syms =
