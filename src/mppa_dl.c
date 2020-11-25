@@ -3,8 +3,9 @@
  */
 
 #include "mppa_dl.h"
+#include "priv/mppa_dl_internal.h"
 
-mppa_dl_handle_t *head = NULL;
+mppa_dl_handle_t *mppa_dl_head_handles = NULL;
 
 
 void *mppa_dl_load(const char *image, int flag)
@@ -37,13 +38,14 @@ void *mppa_dl_load(const char *image, int flag)
 
 	/* handle list is empty and _DYNAMIC symbol has been declared by the
 	   main program: add an handle for it */
-	if (head == NULL && _DYNAMIC != 0) {
+	if (mppa_dl_head_handles == NULL && _DYNAMIC != 0) {
 		MPPA_DL_LOG(2, ">> main program have a .dynamic section\n");
 
-		head = (mppa_dl_handle_t *)
+		mppa_dl_head_handles = (mppa_dl_handle_t *)
 			mppa_dl_malloc(sizeof(mppa_dl_handle_t));
-		enum MPPA_DL_ERRNO err = mppa_dl_init_handle(head, _DYNAMIC, NULL, NULL,
-							     MPPA_DL_GLOBAL) ;
+		enum MPPA_DL_ERRNO err = mppa_dl_init_handle(
+			mppa_dl_head_handles, _DYNAMIC, NULL, NULL,
+			MPPA_DL_GLOBAL);
 		if (err != E_NONE) {
 			mppa_dl_errno(err);
 			return NULL;
@@ -110,9 +112,9 @@ void *mppa_dl_load(const char *image, int flag)
 			enum MPPA_DL_ERRNO err = mppa_dl_init_handle(
 				hdl,
 				(ElfKVX_Dyn *)((ElfKVX_Addr)shdr[i].sh_addr),
-				addr, head, flag);
+				addr, mppa_dl_head_handles, flag);
 			if (err == E_NONE) {
-				head = hdl;
+				mppa_dl_head_handles = hdl;
 			} else {
 				mppa_dl_errno(err);
 				return NULL;
@@ -159,27 +161,30 @@ void *mppa_dl_load(const char *image, int flag)
 		}
 	}
 
-	head->sht_strtab = sht_strtab;
-	head->sht_symtab_syms = sht_symtab_syms;
-	head->sht_symtab_nb_syms = sht_symtab_nb_syms;
+	mppa_dl_head_handles->sht_strtab = sht_strtab;
+	mppa_dl_head_handles->sht_symtab_syms = sht_symtab_syms;
+	mppa_dl_head_handles->sht_symtab_nb_syms = sht_symtab_nb_syms;
 
 	/* process relocations */
 
 	MPPA_DL_LOG(2, ">> %ld RELPLT relocations and %ld RELA relocations\n",
-		    (long int)head->pltreln, (long int)head->relan);
+		    (long int)mppa_dl_head_handles->pltreln,
+		    (long int)mppa_dl_head_handles->relan);
 
-	for (i = 0; i < head->relan; i++) { /* DT_RELA relocations */
-		if (mppa_dl_apply_rela(head, head->rela[i]) != 0) {
+	for (i = 0; i < mppa_dl_head_handles->relan; i++) { /* DT_RELA relocations */
+		if (mppa_dl_apply_rela(mppa_dl_head_handles,
+		    mppa_dl_head_handles->rela[i]) != 0) {
 			mppa_dl_errno(E_RELOC);
 			return NULL;
 		}
 	}
 
-	for (i = 0; i < head->pltreln; i++) { /* DT_PLTREL relocations */
-		if (head->pltrel == DT_RELA) {
-			if (mppa_dl_apply_rela(
-				    head,
-				    ((ElfKVX_Rela*)head->jmprel)[i]) != 0) {
+	for (i = 0; i < mppa_dl_head_handles->pltreln; i++) {
+		/* DT_PLTREL relocations */
+		if (mppa_dl_head_handles->pltrel == DT_RELA) {
+			if (mppa_dl_apply_rela(mppa_dl_head_handles,
+				((ElfKVX_Rela*)mppa_dl_head_handles->jmprel)[i])
+				!= 0) {
 				mppa_dl_errno(E_RELOC);
 				return NULL;
 			}
@@ -193,13 +198,13 @@ void *mppa_dl_load(const char *image, int flag)
 	__builtin_kvx_iinval();
 	__builtin_kvx_barrier();
 
-	mppa_dl_trace_load(head, nb_tps);
+	mppa_dl_trace_load(mppa_dl_head_handles, nb_tps);
 
-	mppa_dl_debug_update(head);
+	mppa_dl_debug_update(mppa_dl_head_handles);
 
 	MPPA_DL_LOG(1, "< mppa_dl_load(%s, %d)\n", image, flag);
 
-	return (void *)head;
+	return (void *)mppa_dl_head_handles;
 }
 
 
@@ -231,9 +236,9 @@ int mppa_dl_unload(void *handle)
 
 	/* remove the handle from the list */
 
-	if (hdl == head) /* removing the head of the list,
+	if (hdl == mppa_dl_head_handles) /* removing the head of the list,
 			    moving the head pointer */
-		head = hdl->parent;
+		mppa_dl_head_handles = hdl->parent;
 
 	/* update parent's child pointer and child's parent pointer
 	   of the item to remove */
@@ -244,12 +249,12 @@ int mppa_dl_unload(void *handle)
 
 	/* if after removing the item, the list size is equal to one,
 	   and _DYNAMIC symbol has been declared, unload it too */
-	if (head != NULL && _DYNAMIC != 0) {
+	if (mppa_dl_head_handles != NULL && _DYNAMIC != 0) {
 		MPPA_DL_LOG(2, ">> unload also handle for main program\n");
 
-		if (head->parent == NULL) {
-			mppa_dl_free(head);
-			head = NULL;
+		if (mppa_dl_head_handles->parent == NULL) {
+			mppa_dl_free(mppa_dl_head_handles);
+			mppa_dl_head_handles = NULL;
 		}
 	}
 
@@ -258,7 +263,7 @@ int mppa_dl_unload(void *handle)
 
 	mppa_dl_free(handle);
 
-	mppa_dl_debug_update(head);
+	mppa_dl_debug_update(mppa_dl_head_handles);
 
 	MPPA_DL_LOG(1, "< mppa_dl_unload(%p)\n", handle);
 

@@ -7,6 +7,7 @@
 
 #define MPPA_TRACE_ENABLE
 #include "mppa_trace.h"
+#include "priv/mppa_dl_internal.h"
 
 /* tracepoints emitted when a shared library is loaded/unloaded */
 MPPA_DECLARE_TRACEPOINT(mppadl, load, (
@@ -64,6 +65,7 @@ void mppa_dl_trace_load(struct mppa_dl_handle *hdl, int so_nb_tps)
 	MPPA_DL_LOG(1, "< %s(%p, %d)\n", __func__, hdl, so_nb_tps);
 
 	if (!so_nb_tps) {
+		mppa_tracepoint(mppadl, load, name, 0, 0, hdl->addr);
 		MPPA_DL_LOG(1, "> %s(%p): no tracepoint\n", __func__, hdl);
 		return;
 	}
@@ -158,6 +160,7 @@ void mppa_dl_trace_unload(struct mppa_dl_handle *hdl)
 	MPPA_DL_LOG(1, "< %s(%p)\n", __func__, hdl);
 
 	if (!hdl->trace_info.first_tp_id) {
+		mppa_tracepoint(mppadl, unload, name, hdl->addr);
 		MPPA_DL_LOG(1, "> %s(%p): no tracepoint\n", __func__, hdl);
 		return;
 	}
@@ -175,4 +178,56 @@ void mppa_dl_trace_unload(struct mppa_dl_handle *hdl)
 		}
 
 	MPPA_DL_LOG(1, "> %s(%p)\n", __func__, hdl);
+}
+
+void mppa_dl_trace_load_secondary(void *handle, int cluster_id)
+{
+	struct mppa_dl_handle *hdl, *find_hdl =
+		(struct mppa_dl_handle *) handle;
+
+	MPPA_DL_LOG(1, "< %s(%p) cluster %d\n", __func__, find_hdl, cluster_id);
+
+	for (hdl = mppa_dl_head_handles; hdl; hdl = hdl->parent)
+		if (find_hdl == hdl) {
+			const char *name = hdl->name ? hdl->name : "?";
+
+			mppa_tracepoint(mppadl, load, name,
+				hdl->trace_info.first_tp_id,
+				hdl->trace_info.last_tp_id, hdl->addr);
+
+			MPPA_DL_LOG(1, "> %s(%p) cluster %d\n", __func__,
+				    find_hdl, cluster_id);
+			break;
+		}
+
+	if (!hdl) {
+		MPPA_DL_LOG(1, "> %s(%p) cluster %d: library with handle %p not"
+			    " found\n", __func__, find_hdl, cluster_id,
+			    find_hdl);
+	}
+}
+
+void mppa_dl_trace_unload_secondary(void *handle, int cluster_id)
+{
+	struct mppa_dl_handle *hdl, *find_hdl =
+		(struct mppa_dl_handle *) handle;
+
+	MPPA_DL_LOG(1, "< %s(%p) cluster %d\n", __func__, find_hdl, cluster_id);
+
+	for (hdl = mppa_dl_head_handles; hdl; hdl = hdl->parent)
+		if (find_hdl == hdl) {
+			const char *name = hdl->name ? hdl->name : "?";
+
+			mppa_tracepoint(mppadl, unload, name, hdl->addr);
+
+			MPPA_DL_LOG(1, "> %s(%p) cluster %d\n", __func__,
+				    find_hdl, cluster_id);
+			break;
+		}
+
+	if (!hdl) {
+		MPPA_DL_LOG(1, "> %s(%p) cluster %d: library with handle %p not"
+			    " found\n", __func__, find_hdl, cluster_id,
+			    find_hdl);
+	}
 }
