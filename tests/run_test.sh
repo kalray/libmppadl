@@ -22,8 +22,7 @@ if ! $* &> "${GENERATED}/sim_output"; then
     STATUS=255
 else
     sed -e 's/{{.*}}/VARIABLE_VALUE_REMOVED_FROM_TEST_RESULT/g' < "${GENERATED}/sim_output" | LC_ALL=C sort > "${GENERATED}/sim_output_filtered"
-    sed -e 's/^Cluster0@0.0: .\{2,5\}: \(.*\)$/\1/g' -i "${GENERATED}/sim_output_filtered"
-    sed -e 's/^IO.*0@0.0: ....: \(.*\)$/\1/g' -i "${GENERATED}/sim_output_filtered"
+    sed -e 's/^Cluster0@0.0: \(.*\)$/\1/g' -i "${GENERATED}/sim_output_filtered"
     sed -e '/.*have no effect.*/d' -i  "${GENERATED}/sim_output_filtered"
     sed -e '/^Warning.*Cluster0$/d' -i "${GENERATED}/sim_output_filtered"
     sed -e '/.*Using shared address.*/d' -i "${GENERATED}/sim_output_filtered"
