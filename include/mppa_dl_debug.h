@@ -22,7 +22,7 @@ struct mppa_dl_debug_map_s {
 	uint64_t name;                    /* File name of the dynamic object. */
 	uint64_t name_len;                /* File name length of the dynamic object. */
 	uint64_t next;                    /* Chain of loaded objects. */
-} __attribute__((packed));
+};
 
 /**
  * Structure for debug
@@ -36,7 +36,7 @@ struct mppa_dl_debug_s {
 		uint64_t brk_u64;
 	};
 	uint64_t valid;                   /* Is the shared object chain valid? */
-} __attribute__((packed));
+};
 
 void mppa_dl_debug_init_debug(struct mppa_dl_handle *hdl);
 void mppa_dl_debug_update(struct mppa_dl_handle *hdl);
