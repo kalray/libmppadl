@@ -18,6 +18,8 @@ void *mppa_dl_load(const char *image, int flag)
 	int nb_tps = 0;
 	const char *sht_strtab = NULL;
 	ElfKVX_Sym *sht_symtab_syms = NULL;
+	void *sect_tp_meta_start = NULL, *sect_tp_name_start = NULL;
+	uint32_t sect_tp_meta_size = 0, sect_tp_name_size = 0;
 
 	mppa_dl_handle_t *hdl = NULL;
 	void *addr = NULL;
@@ -155,6 +157,14 @@ void *mppa_dl_load(const char *image, int flag)
 				mppa_dl_errno(E_UNSUP_CTOR_DTOR);
 				return NULL;
 			}
+			else if (strcmp("kvx_tp_meta", &shstrtab[shdr[i].sh_name]) == 0) {
+				sect_tp_meta_start = addr + shdr[i].sh_addr;
+				sect_tp_meta_size = (uint32_t) shdr[i].sh_size;
+			}
+			else if (strcmp("kvx_tp_name", &shstrtab[shdr[i].sh_name]) == 0) {
+				sect_tp_name_start = addr + shdr[i].sh_addr;
+				sect_tp_name_size = (uint32_t) shdr[i].sh_size;
+			}
 			break;
 		default:
 			break;
@@ -198,7 +208,8 @@ void *mppa_dl_load(const char *image, int flag)
 	__builtin_kvx_iinval();
 	__builtin_kvx_barrier();
 
-	mppa_dl_trace_load(mppa_dl_head_handles, nb_tps);
+	mppa_dl_trace_load(mppa_dl_head_handles, nb_tps, sect_tp_meta_start, sect_tp_meta_size,
+		sect_tp_name_start, sect_tp_name_size);
 
 	mppa_dl_debug_update(mppa_dl_head_handles);
 

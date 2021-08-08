@@ -30,6 +30,13 @@ MPPA_DECLARE_TRACEPOINT(mppadl, unload, (
  */
 extern void *__stop_kvx_tp_id, *__start_kvx_tp_id;
 
+/* declaration of the mppa_trace library function which sends the trace
+ * metadata
+ */
+extern void __attribute__ ((weak)) mppa_trace_send_elf_meta (void *elf_addr,
+	uint16_t nb_tps, void *meta_start, uint32_t meta_sz,
+	void *name_start, uint32_t name_sz);
+
 /* the head of libraries linked list sorted by the tracepoints ID ranges */
 static mppa_dl_handle_t *head_tp;
 
@@ -55,7 +62,9 @@ void mppa_dl_trace_init(struct mppa_dl_handle *hdl)
 	memset(&hdl->trace_info, 0, sizeof(hdl->trace_info));
 }
 
-void mppa_dl_trace_load(struct mppa_dl_handle *hdl, int so_nb_tps)
+void mppa_dl_trace_load(struct mppa_dl_handle *hdl, int so_nb_tps,
+	void *sect_tp_meta_start, uint32_t sect_tp_meta_size,
+	void *sect_tp_name_start, uint32_t sect_tp_name_size)
 {
 	struct mppa_dl_handle *q, *p;
 	unsigned short *p_first_id, exe_nb_tps, first_id;
@@ -142,12 +151,26 @@ void mppa_dl_trace_load(struct mppa_dl_handle *hdl, int so_nb_tps)
 	/* set the remaining fields of the trace_info struct */
 	hdl->trace_info.first_tp_id = first_id;
 	hdl->trace_info.last_tp_id = first_id + so_nb_tps - 1;
+	hdl->trace_info.sect_tp_meta_start = sect_tp_meta_start;
+	hdl->trace_info.sect_tp_name_start = sect_tp_name_start;
+	hdl->trace_info.sect_tp_meta_size = sect_tp_meta_size;
+	hdl->trace_info.sect_tp_name_size = sect_tp_name_size;
 
 	/* generate a tracepoint to inform the trace data parser about the new
 	 * loaded library
 	 */
 	mppa_tracepoint(mppadl, load, name, hdl->trace_info.first_tp_id,
 		hdl->trace_info.last_tp_id, hdl->addr);
+
+	/* send the trace metadata so that the trace data parser to be able to
+	 * decode the trace data without having the loaded library file
+	 */
+	if (&mppa_trace_send_elf_meta && sect_tp_meta_size && sect_tp_name_size)
+		mppa_trace_send_elf_meta (hdl->addr, so_nb_tps,
+					  sect_tp_meta_start,
+					  sect_tp_meta_size,
+					  sect_tp_name_start,
+					  sect_tp_name_size);
 
 	MPPA_DL_LOG(1, "< %s(%p)\n", __func__, hdl);
 }
@@ -194,6 +217,20 @@ void mppa_dl_trace_load_secondary(void *handle, int cluster_id)
 			mppa_tracepoint(mppadl, load, name,
 				hdl->trace_info.first_tp_id,
 				hdl->trace_info.last_tp_id, hdl->addr);
+
+
+			/* send the trace metadata to the secondary clusters */
+			if (&mppa_trace_send_elf_meta &&
+			    hdl->trace_info.sect_tp_meta_size &&
+			    hdl->trace_info.sect_tp_name_size) {
+				mppa_trace_send_elf_meta (hdl->addr,
+					hdl->trace_info.last_tp_id -
+					hdl->trace_info.first_tp_id + 1,
+					hdl->trace_info.sect_tp_meta_start,
+					hdl->trace_info.sect_tp_meta_size,
+					hdl->trace_info.sect_tp_name_start,
+					hdl->trace_info.sect_tp_name_size);
+			}
 
 			MPPA_DL_LOG(1, "> %s(%p) cluster %d\n", __func__,
 				    find_hdl, cluster_id);
